@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,7 +20,7 @@ import {
   FileText
 } from "lucide-react";
 import { useBanking } from "@/contexts/BankingContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
@@ -35,10 +35,13 @@ const Dashboard = () => {
   const [loanAmount, setLoanAmount] = useState("");
   const [loanPurpose, setLoanPurpose] = useState("");
 
-  if (!currentUser) {
-    navigate("/login");
-    return null;
-  }
+  useEffect(() => {
+    if (!currentUser) {
+      navigate("/login");
+    }
+  }, [currentUser, navigate]);
+
+  if (!currentUser) return null;
 
   const userTransactions = transactions.filter(t => t.userId === currentUser.id).slice(0, 10);
   const userLoanRequests = loanRequests.filter(l => l.userId === currentUser.id);
@@ -155,9 +158,11 @@ const Dashboard = () => {
           </div>
           
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/profile">
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </Link>
             </Button>
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
@@ -204,13 +209,39 @@ const Dashboard = () => {
           </Card>
         </div>
 
+        {/* Quick Actions */}
+        <div className="grid md:grid-cols-4 gap-4 mb-8">
+          <Button asChild className="h-20 flex-col space-y-2">
+            <Link to="/deposit">
+              <TrendingUp className="w-6 h-6" />
+              <span>Deposit</span>
+            </Link>
+          </Button>
+          <Button asChild className="h-20 flex-col space-y-2" variant="outline">
+            <Link to="/withdraw">
+              <TrendingDown className="w-6 h-6" />
+              <span>Withdraw</span>
+            </Link>
+          </Button>
+          <Button asChild className="h-20 flex-col space-y-2" variant="outline">
+            <Link to="/transfer">
+              <Send className="w-6 h-6" />
+              <span>Transfer</span>
+            </Link>
+          </Button>
+          <Button asChild className="h-20 flex-col space-y-2" variant="outline">
+            <Link to="/profile">
+              <Settings className="w-6 h-6" />
+              <span>Settings</span>
+            </Link>
+          </Button>
+        </div>
+
         {/* Main Content */}
         <Tabs defaultValue="transactions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="deposit">Deposit</TabsTrigger>
-            <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
-            <TabsTrigger value="transfer">Transfer</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="transactions">Recent Transactions</TabsTrigger>
+            <TabsTrigger value="summary">Account Summary</TabsTrigger>
             <TabsTrigger value="loans">Loans</TabsTrigger>
           </TabsList>
 
@@ -266,122 +297,64 @@ const Dashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="deposit">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  Deposit Money
-                </CardTitle>
-                <CardDescription>Add funds to your account</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleDeposit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="deposit-amount">Amount</Label>
-                    <Input
-                      id="deposit-amount"
-                      type="number"
-                      placeholder="0.00"
-                      value={depositAmount}
-                      onChange={(e) => setDepositAmount(e.target.value)}
-                      min="0.01"
-                      step="0.01"
-                      required
-                    />
+          <TabsContent value="summary">
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Overview</CardTitle>
+                  <CardDescription>Your account at a glance</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between">
+                    <span>Account Type:</span>
+                    <span className="font-medium">Primary Checking</span>
                   </div>
-                  <Button type="submit" className="w-full">
-                    <PiggyBank className="w-4 h-4 mr-2" />
-                    Deposit Funds
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  <div className="flex justify-between">
+                    <span>Account Number:</span>
+                    <span className="font-mono">****-{currentUser.id.padStart(4, '0')}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Available Balance:</span>
+                    <span className="font-semibold text-primary">{formatCurrency(currentUser.balance)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Account Status:</span>
+                    <span className="text-success">Active</span>
+                  </div>
+                </CardContent>
+              </Card>
 
-          <TabsContent value="withdraw">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingDown className="w-5 h-5" />
-                  Withdraw Money
-                </CardTitle>
-                <CardDescription>Withdraw funds from your account</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleWithdraw} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="withdraw-amount">Amount</Label>
-                    <Input
-                      id="withdraw-amount"
-                      type="number"
-                      placeholder="0.00"
-                      value={withdrawAmount}
-                      onChange={(e) => setWithdrawAmount(e.target.value)}
-                      min="0.01"
-                      step="0.01"
-                      max={currentUser.balance}
-                      required
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Available balance: {formatCurrency(currentUser.balance)}
-                    </p>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Stats</CardTitle>
+                  <CardDescription>This month's activity</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between">
+                    <span>Total Transactions:</span>
+                    <span className="font-medium">{userTransactions.length}</span>
                   </div>
-                  <Button type="submit" className="w-full">
-                    <ArrowDownLeft className="w-4 h-4 mr-2" />
-                    Withdraw Funds
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="transfer">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Send className="w-5 h-5" />
-                  Transfer Money
-                </CardTitle>
-                <CardDescription>Send money to another account</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleTransfer} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="transfer-recipient">Recipient Username or Email</Label>
-                    <Input
-                      id="transfer-recipient"
-                      type="text"
-                      placeholder="Enter username or email"
-                      value={transferRecipient}
-                      onChange={(e) => setTransferRecipient(e.target.value)}
-                      required
-                    />
+                  <div className="flex justify-between">
+                    <span>Deposits:</span>
+                    <span className="font-medium text-success">
+                      {userTransactions.filter(t => t.type === 'deposit').length}
+                    </span>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="transfer-amount">Amount</Label>
-                    <Input
-                      id="transfer-amount"
-                      type="number"
-                      placeholder="0.00"
-                      value={transferAmount}
-                      onChange={(e) => setTransferAmount(e.target.value)}
-                      min="0.01"
-                      step="0.01"
-                      max={currentUser.balance}
-                      required
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Available balance: {formatCurrency(currentUser.balance)}
-                    </p>
+                  <div className="flex justify-between">
+                    <span>Withdrawals:</span>
+                    <span className="font-medium text-warning">
+                      {userTransactions.filter(t => t.type === 'withdraw').length}
+                    </span>
                   </div>
-                  <Button type="submit" className="w-full">
-                    <Send className="w-4 h-4 mr-2" />
-                    Send Transfer
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+                  <div className="flex justify-between">
+                    <span>Transfers:</span>
+                    <span className="font-medium">
+                      {userTransactions.filter(t => t.type.includes('transfer')).length}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="loans">

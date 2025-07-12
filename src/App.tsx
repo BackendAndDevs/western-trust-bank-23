@@ -9,6 +9,10 @@ import Login from "./pages/Login";
 import CreateAccount from "./pages/CreateAccount";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Deposit from "./pages/Deposit";
+import Withdraw from "./pages/Withdraw";
+import Transfer from "./pages/Transfer";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +30,10 @@ const App = () => (
             <Route path="/create-account" element={<CreateAccount />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/deposit" element={<Deposit />} />
+            <Route path="/withdraw" element={<Withdraw />} />
+            <Route path="/transfer" element={<Transfer />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
