@@ -44,6 +44,7 @@ interface BankingContextType {
   requestLoan: (amount: number, purpose: string) => void;
   updateLoanStatus: (loanId: string, status: 'approved' | 'rejected') => void;
   removeUser: (userId: string) => void;
+  updateUser: (userId: string, updates: Partial<User>) => void;
 }
 
 const BankingContext = createContext<BankingContextType | undefined>(undefined);
@@ -315,6 +316,17 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     setLoanRequests(prev => prev.filter(loan => loan.userId !== userId));
   };
 
+  const updateUser = (userId: string, updates: Partial<User>) => {
+    setUsers(prev => prev.map(user => 
+      user.id === userId ? { ...user, ...updates } : user
+    ));
+    
+    // Update current user if it's the one being updated
+    if (currentUser?.id === userId) {
+      setCurrentUser(prev => prev ? { ...prev, ...updates } : null);
+    }
+  };
+
   return (
     <BankingContext.Provider value={{
       currentUser,
@@ -330,6 +342,7 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
       requestLoan,
       updateLoanStatus,
       removeUser,
+      updateUser,
     }}>
       {children}
     </BankingContext.Provider>

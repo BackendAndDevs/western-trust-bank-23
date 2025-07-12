@@ -27,7 +27,7 @@ const Login = () => {
       if (success) {
         toast({
           title: "Login Successful",
-          description: "Welcome back to SecureBank!",
+          description: "Welcome back to Western Trust Bank!",
         });
         
         // Check if admin user
@@ -63,7 +63,7 @@ const Login = () => {
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
               <CreditCard className="w-6 h-6 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl font-bold text-primary">SecureBank</h1>
+            <h1 className="text-3xl font-bold text-primary">Western Trust Bank</h1>
           </Link>
         </div>
 
@@ -71,7 +71,7 @@ const Login = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Welcome Back</CardTitle>
             <CardDescription>
-              Sign in to your SecureBank account to access your dashboard
+              Sign in to your Western Trust Bank account to access your dashboard
             </CardDescription>
           </CardHeader>
           

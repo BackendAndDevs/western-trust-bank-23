@@ -85,7 +85,7 @@ const CreateAccount = () => {
       if (success) {
         toast({
           title: "Account Created Successfully!",
-          description: "Welcome to SecureBank! You've been automatically logged in.",
+          description: "Welcome to Western Trust Bank! You've been automatically logged in.",
         });
         navigate("/dashboard");
       } else {
@@ -115,7 +115,7 @@ const CreateAccount = () => {
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
               <CreditCard className="w-6 h-6 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl font-bold text-primary">SecureBank</h1>
+            <h1 className="text-3xl font-bold text-primary">Western Trust Bank</h1>
           </Link>
         </div>
 
@@ -123,7 +123,7 @@ const CreateAccount = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Create Your Account</CardTitle>
             <CardDescription>
-              Join SecureBank and start managing your finances securely
+              Join Western Trust Bank and start managing your finances securely
             </CardDescription>
           </CardHeader>
           

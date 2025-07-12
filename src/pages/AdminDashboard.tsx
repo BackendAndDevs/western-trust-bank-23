@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   CreditCard, 
   Users, 
@@ -13,9 +16,11 @@ import {
   X,
   Trash2,
   ArrowUpRight,
-  ArrowDownLeft
+  ArrowDownLeft,
+  Edit,
+  Save
 } from "lucide-react";
-import { useBanking } from "@/contexts/BankingContext";
+import { useBanking, User } from "@/contexts/BankingContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,10 +32,13 @@ const AdminDashboard = () => {
     loanRequests, 
     updateLoanStatus, 
     removeUser, 
+    updateUser,
     logout 
   } = useBanking();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', email: '', username: '', balance: '' });
 
   if (!currentUser || !currentUser.isAdmin) {
     navigate("/login");
@@ -68,6 +76,44 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setEditForm({
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      balance: user.balance.toString(),
+    });
+  };
+
+  const handleSaveUser = () => {
+    if (!editingUser) return;
+    
+    const balance = parseFloat(editForm.balance);
+    if (isNaN(balance) || balance < 0) {
+      toast({
+        title: "Invalid Balance",
+        description: "Please enter a valid balance amount.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateUser(editingUser.id, {
+      name: editForm.name,
+      email: editForm.email,
+      username: editForm.username,
+      balance: balance,
+    });
+
+    toast({
+      title: "User Updated",
+      description: `User ${editForm.username} has been updated successfully.`,
+    });
+
+    setEditingUser(null);
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -95,7 +141,7 @@ const AdminDashboard = () => {
               <CreditCard className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-primary">SecureBank Admin</h1>
+              <h1 className="text-xl font-bold text-primary">Western Trust Bank Admin</h1>
               <p className="text-sm text-muted-foreground">Administrator Dashboard</p>
             </div>
           </div>
@@ -192,7 +238,67 @@ const AdminDashboard = () => {
                         <p className="font-semibold text-primary">{formatCurrency(user.balance)}</p>
                         <p className="text-sm text-muted-foreground">Account Balance</p>
                       </div>
-                      <div className="ml-4">
+                      <div className="ml-4 flex space-x-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleEditUser(user)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edit User Account</DialogTitle>
+                              <DialogDescription>
+                                Update user account information and balance.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <Label htmlFor="name">Full Name</Label>
+                                <Input
+                                  id="name"
+                                  value={editForm.name}
+                                  onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                  id="email"
+                                  type="email"
+                                  value={editForm.email}
+                                  onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="username">Username</Label>
+                                <Input
+                                  id="username"
+                                  value={editForm.username}
+                                  onChange={(e) => setEditForm(prev => ({ ...prev, username: e.target.value }))}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="balance">Account Balance</Label>
+                                <Input
+                                  id="balance"
+                                  type="number"
+                                  step="0.01"
+                                  value={editForm.balance}
+                                  onChange={(e) => setEditForm(prev => ({ ...prev, balance: e.target.value }))}
+                                />
+                              </div>
+                              <Button onClick={handleSaveUser} className="w-full">
+                                <Save className="w-4 h-4 mr-2" />
+                                Save Changes
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                         <Button 
                           variant="destructive" 
                           size="sm"

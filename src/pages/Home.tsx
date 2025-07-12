@@ -13,7 +13,7 @@ const Home = () => {
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-primary-foreground" />
             </div>
-            <h1 className="text-2xl font-bold text-primary">SecureBank</h1>
+            <h1 className="text-2xl font-bold text-primary">Western Trust Bank</h1>
           </div>
           
           <div className="flex space-x-4">
@@ -52,7 +52,7 @@ const Home = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <h3 className="text-3xl font-bold text-center mb-12 text-foreground">
-            Why Choose SecureBank?
+            Why Choose Western Trust Bank?
           </h3>
           
           <div className="grid md:grid-cols-3 gap-8">
@@ -159,7 +159,7 @@ const Home = () => {
         <div className="container mx-auto px-4 text-center">
           <h3 className="text-3xl font-bold mb-6">Ready to Start Banking Smarter?</h3>
           <p className="text-xl mb-8 opacity-90">
-            Join thousands of satisfied customers who trust SecureBank with their financial future.
+            Join thousands of satisfied customers who trust Western Trust Bank with their financial future.
           </p>
           <Button asChild size="lg" variant="secondary" className="text-lg px-8">
             <Link to="/create-account">Open Your Account</Link>
@@ -176,7 +176,7 @@ const Home = () => {
                 <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
                   <CreditCard className="w-4 h-4 text-primary-foreground" />
                 </div>
-                <span className="font-bold text-primary">SecureBank</span>
+                <span className="font-bold text-primary">Western Trust Bank</span>
               </div>
               <p className="text-muted-foreground">
                 Your trusted partner for modern, secure banking solutions.
@@ -207,14 +207,14 @@ const Home = () => {
               <h4 className="font-semibold mb-4">Contact</h4>
               <div className="space-y-2 text-muted-foreground">
                 <p>1-800-SECURE</p>
-                <p>support@securebank.com</p>
+                <p>support@westerntrust.com</p>
                 <p>Available 24/7</p>
               </div>
             </div>
           </div>
           
           <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 SecureBank. All rights reserved. Member FDIC.</p>
+            <p>&copy; 2024 Western Trust Bank. All rights reserved. Member FDIC.</p>
           </div>
         </div>
       </footer>
