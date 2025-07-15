@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { CreditCard, User, ArrowLeft, Settings, Bell, Shield, Eye } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CreditCard, User, ArrowLeft, Settings, Bell, Shield, Eye, Camera, Upload } from "lucide-react";
 import { useBanking } from "@/contexts/BankingContext";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -18,7 +19,9 @@ const Profile = () => {
     name: "",
     email: "",
     username: "",
+    profileImage: "",
   });
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [notifications, setNotifications] = useState({
     email: true,
     sms: false,
@@ -35,6 +38,7 @@ const Profile = () => {
         name: currentUser.name,
         email: currentUser.email,
         username: currentUser.username,
+        profileImage: currentUser.profileImage || "",
       });
     }
   }, [currentUser, navigate]);
@@ -48,6 +52,18 @@ const Profile = () => {
       title: "Profile Updated",
       description: "Your profile information has been successfully updated.",
     });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const imageUrl = event.target?.result as string;
+        setEditForm(prev => ({ ...prev, profileImage: imageUrl }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -100,6 +116,42 @@ const Profile = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSaveProfile} className="space-y-6">
+                  {/* Profile Image Section */}
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="relative">
+                      <Avatar className="w-24 h-24">
+                        <AvatarImage src={editForm.profileImage || currentUser.profileImage} alt={currentUser.name} />
+                        <AvatarFallback className="text-lg">
+                          {currentUser.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <Button
+                        type="button"
+                        size="icon"
+                        className="absolute bottom-0 right-0 rounded-full w-8 h-8"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Camera className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Change Photo
+                    </Button>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="name">Full Name</Label>

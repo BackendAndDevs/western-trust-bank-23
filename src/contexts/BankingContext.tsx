@@ -7,6 +7,7 @@ export interface User {
   name: string;
   balance: number;
   isAdmin: boolean;
+  profileImage?: string;
 }
 
 export interface Transaction {
@@ -65,6 +66,7 @@ const initialUsers: User[] = [
     name: 'Bank Administrator',
     balance: 100000,
     isAdmin: true,
+    profileImage: '/placeholder.svg?height=100&width=100',
   },
   {
     id: '2',
@@ -73,6 +75,7 @@ const initialUsers: User[] = [
     name: 'John Doe',
     balance: 2500,
     isAdmin: false,
+    profileImage: '/placeholder.svg?height=100&width=100',
   },
   {
     id: '3',
@@ -81,6 +84,16 @@ const initialUsers: User[] = [
     name: 'Jane Smith',
     balance: 4750,
     isAdmin: false,
+    profileImage: '/placeholder.svg?height=100&width=100',
+  },
+  {
+    id: '4',
+    username: 'donnie_wahlberg',
+    email: 'donnie@example.com',
+    name: 'Donnie Wahlberg',
+    balance: 350000,
+    isAdmin: false,
+    profileImage: '/placeholder.svg?height=100&width=100',
   },
 ];
 
