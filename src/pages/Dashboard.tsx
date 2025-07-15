@@ -146,42 +146,44 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-primary-foreground" />
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-primary">Western Trust Bank</h1>
+                <p className="text-sm text-muted-foreground">Welcome back, {currentUser.name}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-primary">Western Trust Bank</h1>
-              <p className="text-sm text-muted-foreground">Welcome back, {currentUser.name}</p>
+            
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                <Link to="/profile">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/profile">
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-8">
         {/* Account Overview */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Account Balance</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{formatCurrency(currentUser.balance)}</div>
+              <div className="text-xl sm:text-2xl font-bold text-primary">{formatCurrency(currentUser.balance)}</div>
               <p className="text-xs text-muted-foreground">Primary Checking Account</p>
             </CardContent>
           </Card>
@@ -192,57 +194,57 @@ const Dashboard = () => {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{userTransactions.length}</div>
+              <div className="text-xl sm:text-2xl font-bold">{userTransactions.length}</div>
               <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="sm:col-span-2 lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Loans</CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{userLoanRequests.filter(l => l.status === 'pending').length}</div>
+              <div className="text-xl sm:text-2xl font-bold">{userLoanRequests.filter(l => l.status === 'pending').length}</div>
               <p className="text-xs text-muted-foreground">Awaiting approval</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <Button asChild className="h-20 flex-col space-y-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <Button asChild className="h-16 sm:h-20 flex-col space-y-1 sm:space-y-2 text-xs sm:text-sm">
             <Link to="/deposit">
-              <TrendingUp className="w-6 h-6" />
+              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
               <span>Deposit</span>
             </Link>
           </Button>
-          <Button asChild className="h-20 flex-col space-y-2" variant="outline">
+          <Button asChild className="h-16 sm:h-20 flex-col space-y-1 sm:space-y-2 text-xs sm:text-sm" variant="outline">
             <Link to="/withdraw">
-              <TrendingDown className="w-6 h-6" />
+              <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6" />
               <span>Withdraw</span>
             </Link>
           </Button>
-          <Button asChild className="h-20 flex-col space-y-2" variant="outline">
+          <Button asChild className="h-16 sm:h-20 flex-col space-y-1 sm:space-y-2 text-xs sm:text-sm" variant="outline">
             <Link to="/transfer">
-              <Send className="w-6 h-6" />
+              <Send className="w-5 h-5 sm:w-6 sm:h-6" />
               <span>Transfer</span>
             </Link>
           </Button>
-          <Button asChild className="h-20 flex-col space-y-2" variant="outline">
+          <Button asChild className="h-16 sm:h-20 flex-col space-y-1 sm:space-y-2 text-xs sm:text-sm" variant="outline">
             <Link to="/profile">
-              <Settings className="w-6 h-6" />
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
               <span>Settings</span>
             </Link>
           </Button>
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="transactions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="transactions">Recent Transactions</TabsTrigger>
-            <TabsTrigger value="summary">Account Summary</TabsTrigger>
-            <TabsTrigger value="loans">Loans</TabsTrigger>
+        <Tabs defaultValue="transactions" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
+            <TabsTrigger value="transactions" className="px-2 sm:px-4">Transactions</TabsTrigger>
+            <TabsTrigger value="summary" className="px-2 sm:px-4">Summary</TabsTrigger>
+            <TabsTrigger value="loans" className="px-2 sm:px-4">Loans</TabsTrigger>
           </TabsList>
 
           <TabsContent value="transactions">
@@ -252,11 +254,11 @@ const Dashboard = () => {
                 <CardDescription>Your recent account activity</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {userTransactions.length > 0 ? (
                     userTransactions.map((transaction) => (
-                      <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4">
+                      <div key={transaction.id} className="flex items-center justify-between p-3 sm:p-4 border rounded-lg">
+                        <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                           <div className={`p-2 rounded-full ${
                             transaction.type === 'deposit' || transaction.type === 'transfer_received' 
                               ? 'bg-success/10' 
@@ -272,14 +274,14 @@ const Dashboard = () => {
                               <ArrowDownLeft className="w-4 h-4 text-destructive" />
                             )}
                           </div>
-                          <div>
-                            <p className="font-medium">{transaction.description}</p>
-                            <p className="text-sm text-muted-foreground">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm sm:text-base truncate">{transaction.description}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               {formatDate(transaction.timestamp)}
                             </p>
                           </div>
                         </div>
-                        <div className={`font-semibold ${
+                        <div className={`font-semibold text-sm sm:text-base text-right ${
                           transaction.type === 'deposit' || transaction.type === 'transfer_received' 
                             ? 'text-success' 
                             : 'text-destructive'
@@ -298,26 +300,26 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="summary">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Account Overview</CardTitle>
                   <CardDescription>Your account at a glance</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between">
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="flex justify-between text-sm sm:text-base">
                     <span>Account Type:</span>
                     <span className="font-medium">Primary Checking</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-sm sm:text-base">
                     <span>Account Number:</span>
                     <span className="font-mono">****-{currentUser.id.padStart(4, '0')}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-sm sm:text-base">
                     <span>Available Balance:</span>
                     <span className="font-semibold text-primary">{formatCurrency(currentUser.balance)}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-sm sm:text-base">
                     <span>Account Status:</span>
                     <span className="text-success">Active</span>
                   </div>
@@ -329,24 +331,24 @@ const Dashboard = () => {
                   <CardTitle>Quick Stats</CardTitle>
                   <CardDescription>This month's activity</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between">
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="flex justify-between text-sm sm:text-base">
                     <span>Total Transactions:</span>
                     <span className="font-medium">{userTransactions.length}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-sm sm:text-base">
                     <span>Deposits:</span>
                     <span className="font-medium text-success">
                       {userTransactions.filter(t => t.type === 'deposit').length}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-sm sm:text-base">
                     <span>Withdrawals:</span>
                     <span className="font-medium text-warning">
                       {userTransactions.filter(t => t.type === 'withdraw').length}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-sm sm:text-base">
                     <span>Transfers:</span>
                     <span className="font-medium">
                       {userTransactions.filter(t => t.type.includes('transfer')).length}
@@ -358,7 +360,7 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="loans">
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -369,28 +371,31 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleLoanRequest} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="loan-amount">Loan Amount</Label>
-                      <Input
-                        id="loan-amount"
-                        type="number"
-                        placeholder="0.00"
-                        value={loanAmount}
-                        onChange={(e) => setLoanAmount(e.target.value)}
-                        min="100"
-                        step="100"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="loan-purpose">Purpose</Label>
-                      <Textarea
-                        id="loan-purpose"
-                        placeholder="Describe the purpose of this loan"
-                        value={loanPurpose}
-                        onChange={(e) => setLoanPurpose(e.target.value)}
-                        required
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2 sm:col-span-2">
+                        <Label htmlFor="loan-amount">Loan Amount</Label>
+                        <Input
+                          id="loan-amount"
+                          type="number"
+                          placeholder="0.00"
+                          value={loanAmount}
+                          onChange={(e) => setLoanAmount(e.target.value)}
+                          min="100"
+                          step="100"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2 sm:col-span-2">
+                        <Label htmlFor="loan-purpose">Purpose</Label>
+                        <Textarea
+                          id="loan-purpose"
+                          placeholder="Describe the purpose of this loan"
+                          value={loanPurpose}
+                          onChange={(e) => setLoanPurpose(e.target.value)}
+                          required
+                          className="min-h-[80px]"
+                        />
+                      </div>
                     </div>
                     <Button type="submit" className="w-full">
                       <FileText className="w-4 h-4 mr-2" />
@@ -406,18 +411,18 @@ const Dashboard = () => {
                   <CardDescription>Track your loan application status</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {userLoanRequests.length > 0 ? (
                       userLoanRequests.map((loan) => (
-                        <div key={loan.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div>
-                            <p className="font-medium">{formatCurrency(loan.amount)}</p>
-                            <p className="text-sm text-muted-foreground">{loan.purpose}</p>
+                        <div key={loan.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm sm:text-base">{formatCurrency(loan.amount)}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground truncate">{loan.purpose}</p>
                             <p className="text-xs text-muted-foreground">
                               {formatDate(loan.timestamp)}
                             </p>
                           </div>
-                          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          <div className={`px-3 py-1 rounded-full text-xs font-medium self-start sm:self-center ${
                             loan.status === 'approved' 
                               ? 'bg-success/10 text-success' 
                               : loan.status === 'rejected'
@@ -429,7 +434,7 @@ const Dashboard = () => {
                         </div>
                       ))
                     ) : (
-                      <p className="text-center text-muted-foreground py-8">No loan requests yet</p>
+                      <p className="text-center text-muted-foreground py-6 sm:py-8">No loan requests yet</p>
                     )}
                   </div>
                 </CardContent>

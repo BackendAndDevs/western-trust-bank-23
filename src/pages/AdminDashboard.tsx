@@ -138,37 +138,39 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-primary-foreground" />
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-primary">Western Trust Bank Admin</h1>
+                <p className="text-sm text-muted-foreground">Administrator Dashboard</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-primary">Western Trust Bank Admin</h1>
-              <p className="text-sm text-muted-foreground">Administrator Dashboard</p>
+            
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary">Admin</Badge>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary">Admin</Badge>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-8">
         {/* Admin Overview */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Users</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{totalUsers}</div>
+              <div className="text-xl sm:text-2xl font-bold text-primary">{totalUsers}</div>
               <p className="text-xs text-muted-foreground">Active accounts</p>
             </CardContent>
           </Card>
@@ -179,7 +181,7 @@ const AdminDashboard = () => {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{formatCurrency(totalBalance)}</div>
+              <div className="text-xl sm:text-2xl font-bold text-primary">{formatCurrency(totalBalance)}</div>
               <p className="text-xs text-muted-foreground">All account balances</p>
             </CardContent>
           </Card>
@@ -190,7 +192,7 @@ const AdminDashboard = () => {
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-warning">{pendingLoans}</div>
+              <div className="text-xl sm:text-2xl font-bold text-warning">{pendingLoans}</div>
               <p className="text-xs text-muted-foreground">Awaiting review</p>
             </CardContent>
           </Card>
@@ -201,18 +203,18 @@ const AdminDashboard = () => {
               <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{transactions.length}</div>
+              <div className="text-xl sm:text-2xl font-bold text-primary">{transactions.length}</div>
               <p className="text-xs text-muted-foreground">All time</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Admin Content */}
-        <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="users">Manage Users</TabsTrigger>
-            <TabsTrigger value="transactions">All Transactions</TabsTrigger>
-            <TabsTrigger value="loans">Loan Requests</TabsTrigger>
+        <Tabs defaultValue="users" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
+            <TabsTrigger value="users" className="px-2 sm:px-4">Users</TabsTrigger>
+            <TabsTrigger value="transactions" className="px-2 sm:px-4">Transactions</TabsTrigger>
+            <TabsTrigger value="loans" className="px-2 sm:px-4">Loans</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -222,34 +224,36 @@ const AdminDashboard = () => {
                 <CardDescription>View and manage all user accounts</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {users.filter(user => !user.isAdmin).map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                            <Users className="w-5 h-5 text-primary" />
+                    <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                           </div>
-                          <div>
-                            <p className="font-medium">{user.name}</p>
-                            <p className="text-sm text-muted-foreground">@{user.username}</p>
-                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm sm:text-base truncate">{user.name}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground truncate">@{user.username}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-primary">{formatCurrency(user.balance)}</p>
-                        <p className="text-sm text-muted-foreground">Account Balance</p>
+                      <div className="text-left sm:text-right">
+                        <p className="font-semibold text-primary text-sm sm:text-base">{formatCurrency(user.balance)}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Account Balance</p>
                       </div>
-                      <div className="ml-4 flex space-x-2">
+                      <div className="flex space-x-2 self-start sm:self-center">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button 
                               variant="outline" 
                               size="sm"
                               onClick={() => handleEditUser(user)}
+                              className="text-xs sm:text-sm"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <span className="hidden sm:inline ml-1">Edit</span>
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
@@ -306,8 +310,10 @@ const AdminDashboard = () => {
                           variant="destructive" 
                           size="sm"
                           onClick={() => handleRemoveUser(user.id, user.username)}
+                          className="text-xs sm:text-sm"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="hidden sm:inline ml-1">Remove</span>
                         </Button>
                       </div>
                     </div>
@@ -324,12 +330,12 @@ const AdminDashboard = () => {
                 <CardDescription>Complete transaction history across all accounts</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4 max-h-96 overflow-y-auto">
+                <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto">
                   {transactions.map((transaction) => {
                     const user = users.find(u => u.id === transaction.userId);
                     return (
-                      <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4">
+                      <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
+                        <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                           <div className={`p-2 rounded-full ${
                             transaction.type === 'deposit' || transaction.type === 'transfer_received' 
                               ? 'bg-success/10' 
@@ -341,14 +347,14 @@ const AdminDashboard = () => {
                               <ArrowDownLeft className="w-4 h-4 text-destructive" />
                             )}
                           </div>
-                          <div>
-                            <p className="font-medium">{transaction.description}</p>
-                            <p className="text-sm text-muted-foreground">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm sm:text-base truncate">{transaction.description}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               {user?.username} • {formatDate(transaction.timestamp)}
                             </p>
                           </div>
                         </div>
-                        <div className={`font-semibold ${
+                        <div className={`font-semibold text-sm sm:text-base text-left sm:text-right ${
                           transaction.type === 'deposit' || transaction.type === 'transfer_received' 
                             ? 'text-success' 
                             : 'text-destructive'

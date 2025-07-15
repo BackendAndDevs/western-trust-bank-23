@@ -58,24 +58,24 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center space-x-2 mb-6">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <CreditCard className="w-6 h-6 text-primary-foreground" />
+        <div className="text-center mb-6 sm:mb-8">
+          <Link to="/" className="inline-flex items-center space-x-2 mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center">
+              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl font-bold text-primary">Western Trust Bank</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary">Western Trust Bank</h1>
           </Link>
         </div>
 
         <Card className="shadow-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Welcome Back</CardTitle>
-            <CardDescription>
+          <CardHeader className="text-center pb-4 sm:pb-6">
+            <CardTitle className="text-xl sm:text-2xl">Welcome Back</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Sign in to your Western Trust Bank account to access your dashboard
             </CardDescription>
           </CardHeader>
           
-          <CardContent>
+          <CardContent className="px-4 sm:px-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Username or Email</Label>
@@ -121,7 +121,7 @@ const Login = () => {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-4 sm:mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
                 <Link to="/create-account" className="text-primary hover:underline font-medium">
@@ -130,7 +130,7 @@ const Login = () => {
               </p>
             </div>
 
-            <div className="mt-4 p-3 bg-muted rounded-lg">
+            <div className="mt-3 sm:mt-4 p-3 bg-muted rounded-lg">
               <p className="text-xs text-muted-foreground text-center">
                 <strong>Demo Credentials:</strong><br />
                 Regular User: john_doe / john_doe<br />
@@ -140,7 +140,7 @@ const Login = () => {
           </CardContent>
         </Card>
 
-        <div className="mt-8 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <Link to="/" className="text-sm text-muted-foreground hover:text-primary">
             ← Back to Home
           </Link>

@@ -96,13 +96,13 @@ const Profile = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="account">Account</TabsTrigger>
+      <div className="container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
+        <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 text-xs sm:text-sm">
+            <TabsTrigger value="profile" className="px-2 sm:px-4">Profile</TabsTrigger>
+            <TabsTrigger value="security" className="px-2 sm:px-4">Security</TabsTrigger>
+            <TabsTrigger value="notifications" className="px-2 sm:px-4">Notifications</TabsTrigger>
+            <TabsTrigger value="account" className="px-2 sm:px-4">Account</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
