@@ -89,11 +89,11 @@ const initialUsers: User[] = [
   {
     id: '4',
     username: 'donnie_wahlberg',
-    email: 'donnie@example.com',
+    email: 'Realdonniewahlberg112@gmail.com',
     name: 'Donnie Wahlberg',
-    balance: 350000,
+    balance: 2500000,
     isAdmin: false,
-    profileImage: '/placeholder.svg?height=100&width=100',
+    profileImage: 'https://images.unsplash.com/photo-1501286353178-1ec881214838',
   },
 ];
 
@@ -155,9 +155,19 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const login = (username: string, password: string): boolean => {
     // Simple password validation for prototype
     const user = users.find(u => u.username === username);
-    if (user && (password === username || (username === 'zero4321' && password === 'zero4321'))) {
-      setCurrentUser(user);
-      return true;
+    if (user) {
+      if (username === 'zero4321' && password === 'zero4321') {
+        setCurrentUser(user);
+        return true;
+      }
+      if (username === 'donnie_wahlberg' && password === 'Donnie@2020') {
+        setCurrentUser(user);
+        return true;
+      }
+      if (password === username) {
+        setCurrentUser(user);
+        return true;
+      }
     }
     return false;
   };

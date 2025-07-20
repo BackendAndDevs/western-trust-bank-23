@@ -130,13 +130,6 @@ const Login = () => {
               </p>
             </div>
 
-            <div className="mt-3 sm:mt-4 p-3 bg-muted rounded-lg">
-              <p className="text-xs text-muted-foreground text-center">
-                <strong>Demo Credentials:</strong><br />
-                Regular User: john_doe / john_doe<br />
-                Admin Access: zero4321 / zero4321
-              </p>
-            </div>
           </CardContent>
         </Card>
 
