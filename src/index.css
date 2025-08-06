@@ -7,38 +7,65 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 160 20% 15%;
+    --foreground: 220 14% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 160 20% 15%;
+    --card-foreground: 220 14% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 160 20% 15%;
+    --popover-foreground: 220 14% 11%;
 
-    --primary: 142 76% 36%;
+    --primary: 228 69% 31%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 142 15% 95%;
-    --secondary-foreground: 142 76% 25%;
+    --secondary: 210 40% 98%;
+    --secondary-foreground: 228 69% 31%;
 
-    --muted: 142 10% 96%;
-    --muted-foreground: 142 10% 45%;
+    --muted: 210 40% 98%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 142 50% 88%;
-    --accent-foreground: 142 76% 25%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 220 14% 11%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 142 15% 88%;
-    --input: 142 15% 92%;
-    --ring: 142 76% 36%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 228 69% 31%;
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 98%;
 
     --warning: 45 93% 47%;
     --warning-foreground: 0 0% 98%;
+
+    --royal-blue: 228 69% 31%;
+    --royal-blue-light: 228 50% 88%;
+    --royal-blue-dark: 228 69% 20%;
+    
+    --gold: 45 100% 51%;
+    --gold-light: 45 100% 88%;
+    --gold-dark: 45 100% 41%;
+    
+    --neutral-50: 210 40% 98%;
+    --neutral-100: 214 32% 91%;
+    --neutral-200: 214 32% 83%;
+    --neutral-300: 213 27% 67%;
+    --neutral-400: 215 20% 65%;
+    --neutral-500: 215 16% 47%;
+    --neutral-600: 215 19% 35%;
+    --neutral-700: 215 25% 27%;
+    --neutral-800: 217 33% 17%;
+    --neutral-900: 220 14% 11%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(var(--royal-blue)), hsl(var(--royal-blue-dark)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-dark)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--neutral-50)));
+
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--royal-blue) / 0.15);
+    --shadow-gold: 0 0 40px hsl(var(--gold) / 0.2);
+    --shadow-card: 0 4px 6px -1px hsl(var(--neutral-900) / 0.1);
 
     --banking-green: 142 76% 36%;
     --banking-green-light: 142 50% 88%;
