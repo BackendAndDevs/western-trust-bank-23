@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface User {
   id: string;
@@ -70,18 +71,18 @@ const initialUsers: User[] = [
   },
   {
     id: '2',
-    username: 'john_doe',
-    email: 'john@example.com',
-    name: 'John Doe',
+    username: 'alex_rodriguez',
+    email: 'alex@example.com',
+    name: 'Alex Rodriguez',
     balance: 2500,
     isAdmin: false,
     profileImage: '/placeholder.svg?height=100&width=100',
   },
   {
     id: '3',
-    username: 'jane_smith',
-    email: 'jane@example.com',
-    name: 'Jane Smith',
+    username: 'sarah_chen',
+    email: 'sarah@example.com',
+    name: 'Sarah Chen',
     balance: 4750,
     isAdmin: false,
     profileImage: '/placeholder.svg?height=100&width=100',
@@ -119,17 +120,17 @@ const initialTransactions: Transaction[] = [
     userId: '2',
     type: 'transfer_sent',
     amount: 200,
-    description: 'Transfer to Jane Smith',
+    description: 'Transfer to Sarah Chen',
     timestamp: new Date('2024-01-17'),
     recipientId: '3',
-    recipientUsername: 'jane_smith',
+    recipientUsername: 'sarah_chen',
   },
   {
     id: '4',
     userId: '3',
     type: 'transfer_received',
     amount: 200,
-    description: 'Transfer from John Doe',
+    description: 'Transfer from Alex Rodriguez',
     timestamp: new Date('2024-01-17'),
   },
 ];
@@ -138,7 +139,7 @@ const initialLoanRequests: LoanRequest[] = [
   {
     id: '1',
     userId: '2',
-    username: 'john_doe',
+    username: 'alex_rodriguez',
     amount: 10000,
     purpose: 'Home renovation',
     status: 'pending',
@@ -148,9 +149,165 @@ const initialLoanRequests: LoanRequest[] = [
 
 export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>(initialUsers);
-  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
-  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>(initialLoanRequests);
+  const [users, setUsers] = useState<User[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
+  const [isDataInitialized, setIsDataInitialized] = useState(false);
+
+  // Initialize data from Supabase or create initial data
+  useEffect(() => {
+    const initializeData = async () => {
+      try {
+        // Check if profiles exist
+        const { data: profiles } = await supabase.from('profiles').select('*');
+        
+        if (!profiles || profiles.length === 0) {
+          // Create initial users if none exist
+          const profilesData = initialUsers.map(user => ({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            full_name: user.name,
+            is_admin: user.isAdmin,
+            profile_image: user.profileImage
+          }));
+
+          await supabase.from('profiles').insert(profilesData);
+
+          // Create accounts for initial users
+          const accountsData = initialUsers.map(user => ({
+            user_id: user.id,
+            balance: user.balance,
+            account_type: 'checking'
+          }));
+
+          await supabase.from('accounts').insert(accountsData);
+
+          // Create initial transactions
+          const transactionsData = initialTransactions.map(tx => ({
+            id: tx.id,
+            user_id: tx.userId,
+            transaction_type: tx.type,
+            amount: tx.amount,
+            description: tx.description,
+            created_at: tx.timestamp.toISOString(),
+            recipient_id: tx.recipientId,
+            recipient_username: tx.recipientUsername
+          }));
+
+          await supabase.from('transactions').insert(transactionsData);
+
+          // Create initial loan requests
+          const loanRequestsData = initialLoanRequests.map(loan => ({
+            id: loan.id,
+            user_id: loan.userId,
+            amount: loan.amount,
+            purpose: loan.purpose,
+            status: loan.status,
+            created_at: loan.timestamp.toISOString()
+          }));
+
+          await supabase.from('loan_requests').insert(loanRequestsData);
+        }
+
+        // Fetch all data
+        await Promise.all([
+          fetchUsers(),
+          fetchTransactions(),
+          fetchLoanRequests()
+        ]);
+
+        setIsDataInitialized(true);
+      } catch (error) {
+        console.error('Error initializing data:', error);
+        // Fall back to local data if Supabase fails
+        setUsers(initialUsers);
+        setTransactions(initialTransactions);
+        setLoanRequests(initialLoanRequests);
+        setIsDataInitialized(true);
+      }
+    };
+
+    initializeData();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select(`
+          *,
+          accounts (balance)
+        `);
+
+      if (profiles) {
+        const usersData = profiles.map(profile => ({
+          id: profile.id,
+          username: profile.username,
+          email: profile.email,
+          name: profile.full_name || profile.username,
+          balance: profile.accounts?.[0]?.balance || 0,
+          isAdmin: profile.is_admin || false,
+          profileImage: profile.profile_image
+        }));
+        setUsers(usersData);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const fetchTransactions = async () => {
+    try {
+      const { data } = await supabase
+        .from('transactions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        const transactionsData = data.map(tx => ({
+          id: tx.id,
+          userId: tx.user_id,
+          type: tx.transaction_type as 'deposit' | 'withdraw' | 'transfer_sent' | 'transfer_received',
+          amount: tx.amount,
+          description: tx.description,
+          timestamp: new Date(tx.created_at),
+          recipientId: tx.recipient_id,
+          recipientUsername: tx.recipient_username
+        }));
+        setTransactions(transactionsData);
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
+  };
+
+  const fetchLoanRequests = async () => {
+    try {
+      const { data } = await supabase
+        .from('loan_requests')
+        .select(`
+          *,
+          profiles (username)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        const loanRequestsData = data.map(loan => ({
+          id: loan.id,
+          userId: loan.user_id,
+          amount: loan.amount,
+          purpose: loan.purpose,
+          status: loan.status as 'pending' | 'approved' | 'rejected',
+          timestamp: new Date(loan.created_at),
+          username: loan.profiles?.username || 'Unknown'
+        }));
+        setLoanRequests(loanRequestsData);
+      }
+    } catch (error) {
+      console.error('Error fetching loan requests:', error);
+    }
+  };
 
   const login = (username: string, password: string): boolean => {
     // Simple password validation for prototype
@@ -196,51 +353,86 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     return true;
   };
 
-  const deposit = (amount: number) => {
+  const deposit = async (amount: number) => {
     if (!currentUser) return;
 
-    setUsers(prev => prev.map(user => 
-      user.id === currentUser.id 
-        ? { ...user, balance: user.balance + amount }
-        : user
-    ));
+    try {
+      // Update account balance
+      const { error: accountError } = await supabase
+        .from('accounts')
+        .update({ balance: currentUser.balance + amount })
+        .eq('user_id', currentUser.id);
 
-    setCurrentUser(prev => prev ? { ...prev, balance: prev.balance + amount } : null);
+      if (accountError) throw accountError;
 
-    const newTransaction: Transaction = {
-      id: Date.now().toString(),
-      userId: currentUser.id,
-      type: 'deposit',
-      amount,
-      description: `Deposit of $${amount}`,
-      timestamp: new Date(),
-    };
+      // Create transaction record
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: currentUser.id,
+          transaction_type: 'deposit',
+          amount,
+          description: `Deposit of $${amount}`
+        });
 
-    setTransactions(prev => [newTransaction, ...prev]);
+      if (transactionError) throw transactionError;
+
+      // Update local state
+      setUsers(prev => prev.map(user => 
+        user.id === currentUser.id 
+          ? { ...user, balance: user.balance + amount }
+          : user
+      ));
+
+      setCurrentUser(prev => prev ? { ...prev, balance: prev.balance + amount } : null);
+
+      // Refresh transactions
+      await fetchTransactions();
+    } catch (error) {
+      console.error('Error making deposit:', error);
+    }
   };
 
-  const withdraw = (amount: number): boolean => {
+  const withdraw = async (amount: number): Promise<boolean> => {
     if (!currentUser || currentUser.balance < amount) return false;
 
-    setUsers(prev => prev.map(user => 
-      user.id === currentUser.id 
-        ? { ...user, balance: user.balance - amount }
-        : user
-    ));
+    try {
+      // Update account balance
+      const { error: accountError } = await supabase
+        .from('accounts')
+        .update({ balance: currentUser.balance - amount })
+        .eq('user_id', currentUser.id);
 
-    setCurrentUser(prev => prev ? { ...prev, balance: prev.balance - amount } : null);
+      if (accountError) throw accountError;
 
-    const newTransaction: Transaction = {
-      id: Date.now().toString(),
-      userId: currentUser.id,
-      type: 'withdraw',
-      amount,
-      description: `Withdrawal of $${amount}`,
-      timestamp: new Date(),
-    };
+      // Create transaction record
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: currentUser.id,
+          transaction_type: 'withdraw',
+          amount,
+          description: `Withdrawal of $${amount}`
+        });
 
-    setTransactions(prev => [newTransaction, ...prev]);
-    return true;
+      if (transactionError) throw transactionError;
+
+      // Update local state
+      setUsers(prev => prev.map(user => 
+        user.id === currentUser.id 
+          ? { ...user, balance: user.balance - amount }
+          : user
+      ));
+
+      setCurrentUser(prev => prev ? { ...prev, balance: prev.balance - amount } : null);
+
+      // Refresh transactions
+      await fetchTransactions();
+      return true;
+    } catch (error) {
+      console.error('Error making withdrawal:', error);
+      return false;
+    }
   };
 
   const transfer = (recipientUsername: string, amount: number): boolean => {
