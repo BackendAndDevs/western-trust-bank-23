@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Lock, CreditCard, TrendingUp, Users, Award } from "lucide-react";
 import { Link } from "react-router-dom";
-import bankBadge from "@/assets/bank-badge.png";
+
 
 const Home = () => {
   return (
@@ -11,7 +11,9 @@ const Home = () => {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <img src={bankBadge} alt="Western Trust Bank Badge" className="w-10 h-10" />
+            <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center shadow-elegant">
+              <span className="text-white font-bold text-sm">WTB</span>
+            </div>
             <div>
               <h1 className="text-2xl font-bold text-primary">Western Trust Bank</h1>
               <p className="text-xs text-muted-foreground">Your Trusted Banking Partner</p>
@@ -175,7 +177,9 @@ const Home = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center space-x-2 mb-4">
-                <img src={bankBadge} alt="Western Trust Bank Badge" className="w-6 h-6 sm:w-8 sm:h-8" />
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-primary rounded-full flex items-center justify-center shadow-elegant">
+                  <span className="text-white font-bold text-xs">WTB</span>
+                </div>
                 <span className="font-bold text-primary text-sm sm:text-base">Western Trust Bank</span>
               </div>
               <p className="text-muted-foreground text-sm sm:text-base">
