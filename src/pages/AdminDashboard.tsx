@@ -18,11 +18,14 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   Edit,
-  Save
+  Save,
+  Mail,
+  KeyRound
 } from "lucide-react";
 import { useBanking, User } from "@/contexts/BankingContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminDashboard = () => {
   const { 
@@ -39,7 +42,8 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editForm, setEditForm] = useState({ name: '', email: '', username: '', balance: '' });
-
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
   useEffect(() => {
     if (!currentUser || !currentUser.isAdmin) {
       navigate("/login");
@@ -134,6 +138,82 @@ const AdminDashboard = () => {
     }).format(date);
   };
 
+  // Export helpers and password reset
+  const exportToCSV = (filename: string, rows: any[]) => {
+    if (!rows || rows.length === 0) {
+      toast({ title: "Nothing to export", description: "No data available.", variant: "destructive" });
+      return;
+    }
+    const headers = Object.keys(rows[0]);
+    const csv = [headers.join(','), ...rows.map(r => headers.map(h => JSON.stringify((r as any)[h] ?? '')).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportUsers = () => {
+    const rows = users.filter(u => !u.isAdmin).map(u => ({
+      id: u.id,
+      username: u.username,
+      email: u.email,
+      name: u.name,
+      balance: u.balance,
+      isAdmin: u.isAdmin,
+    }));
+    exportToCSV('users.csv', rows);
+  };
+
+  const handleExportTransactions = () => {
+    const rows = transactions.map(t => ({
+      id: t.id,
+      userId: t.userId,
+      type: t.type,
+      amount: t.amount,
+      description: t.description,
+      timestamp: t.timestamp.toISOString(),
+    }));
+    exportToCSV('transactions.csv', rows);
+  };
+
+  const handleExportLoans = () => {
+    const rows = loanRequests.map(l => ({
+      id: l.id,
+      userId: l.userId,
+      username: l.username,
+      amount: l.amount,
+      purpose: l.purpose,
+      status: l.status,
+      timestamp: l.timestamp.toISOString(),
+    }));
+    exportToCSV('loan_requests.csv', rows);
+  };
+
+  const handlePasswordReset = async () => {
+    if (!resetEmail) {
+      toast({ title: 'Email required', description: 'Please enter a user email.', variant: 'destructive' });
+      return;
+    }
+    try {
+      setIsResetting(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/login`,
+      });
+      if (error) throw error;
+      toast({ title: 'Password reset email sent', description: 'If the email exists, a reset link was sent.' });
+      setResetEmail('');
+    } catch (err: any) {
+      toast({ title: 'Reset failed', description: err?.message || 'Please check Supabase Auth settings.' , variant: 'destructive' });
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -211,10 +291,11 @@ const AdminDashboard = () => {
 
         {/* Admin Content */}
         <Tabs defaultValue="users" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
+          <TabsList className="grid w-full grid-cols-4 text-xs sm:text-sm">
             <TabsTrigger value="users" className="px-2 sm:px-4">Users</TabsTrigger>
             <TabsTrigger value="transactions" className="px-2 sm:px-4">Transactions</TabsTrigger>
             <TabsTrigger value="loans" className="px-2 sm:px-4">Loans</TabsTrigger>
+            <TabsTrigger value="reports" className="px-2 sm:px-4">Reports</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -430,6 +511,58 @@ const AdminDashboard = () => {
                   {loanRequests.length === 0 && (
                     <p className="text-center text-muted-foreground py-8">No loan requests yet</p>
                   )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Reports</CardTitle>
+                <CardDescription>Export data and trigger password resets</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6">
+                  <section className="space-y-3">
+                    <h3 className="font-semibold">Export Data</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <Button onClick={handleExportUsers}>
+                        <FileText className="w-4 h-4 mr-2" /> Export Users CSV
+                      </Button>
+                      <Button variant="outline" onClick={handleExportTransactions}>
+                        <FileText className="w-4 h-4 mr-2" /> Export Transactions CSV
+                      </Button>
+                      <Button variant="outline" onClick={handleExportLoans}>
+                        <FileText className="w-4 h-4 mr-2" /> Export Loan Requests CSV
+                      </Button>
+                    </div>
+                  </section>
+
+                  <section className="space-y-3">
+                    <h3 className="font-semibold">Password Reset</h3>
+                    <p className="text-sm text-muted-foreground">Send a secure password reset email to a user.</p>
+                    <div className="flex flex-col sm:flex-row gap-2 max-w-xl">
+                      <div className="flex-1">
+                        <Label htmlFor="resetEmail">User Email</Label>
+                        <Input id="resetEmail" type="email" placeholder="user@example.com" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} />
+                      </div>
+                      <div className="sm:self-end">
+                        <Button onClick={handlePasswordReset} disabled={isResetting}>
+                          {isResetting ? (
+                            <>
+                              <KeyRound className="w-4 h-4 mr-2" /> Sending...
+                            </>
+                          ) : (
+                            <>
+                              <Mail className="w-4 h-4 mr-2" /> Send Reset Email
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Note: Ensure Supabase Auth site/redirect URLs and SMTP are configured.</p>
+                  </section>
                 </div>
               </CardContent>
             </Card>
