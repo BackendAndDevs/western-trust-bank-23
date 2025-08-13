@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CreditCard, TrendingDown, ArrowLeft, Banknote } from "lucide-react";
-import { useBanking } from "@/contexts/BankingContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useBankingData } from "@/hooks/useBankingData";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 

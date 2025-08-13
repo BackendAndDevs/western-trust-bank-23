@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CreditCard, User, ArrowLeft, Settings, Bell, Shield, Eye, Camera, Upload } from "lucide-react";
-import { useBanking } from "@/contexts/BankingContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useBankingData } from "@/hooks/useBankingData";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 

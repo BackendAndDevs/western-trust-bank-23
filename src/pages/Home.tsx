@@ -22,10 +22,10 @@ const Home = () => {
           
           <div className="flex space-x-4">
             <Button asChild variant="outline">
-              <Link to="/login">Login</Link>
+              <Link to="/auth">Sign In</Link>
             </Button>
             <Button asChild>
-              <Link to="/create-account">Create Account</Link>
+              <Link to="/auth">Get Started</Link>
             </Button>
           </div>
         </div>
@@ -43,10 +43,10 @@ const Home = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
             <Button asChild size="lg" className="text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto">
-              <Link to="/create-account">Get Started Today</Link>
+              <Link to="/auth">Get Started Today</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto">
-              <Link to="/login">Access Your Account</Link>
+              <Link to="/auth">Access Your Account</Link>
             </Button>
           </div>
         </div>
@@ -166,7 +166,7 @@ const Home = () => {
             Join thousands of satisfied customers who trust Western Trust Bank with their financial future.
           </p>
           <Button asChild size="lg" variant="secondary" className="text-base sm:text-lg px-6 sm:px-8">
-            <Link to="/create-account">Open Your Account</Link>
+            <Link to="/auth">Open Your Account</Link>
           </Button>
         </div>
       </section>

@@ -3,10 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { BankingProvider } from "@/contexts/BankingContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
-import CreateAccount from "./pages/CreateAccount";
+import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Deposit from "./pages/Deposit";
@@ -19,26 +19,49 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <BankingProvider>
+    <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/create-account" element={<CreateAccount />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/deposit" element={<Deposit />} />
-            <Route path="/withdraw" element={<Withdraw />} />
-            <Route path="/transfer" element={<Transfer />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute requireAdmin>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/deposit" element={
+              <ProtectedRoute>
+                <Deposit />
+              </ProtectedRoute>
+            } />
+            <Route path="/withdraw" element={
+              <ProtectedRoute>
+                <Withdraw />
+              </ProtectedRoute>
+            } />
+            <Route path="/transfer" element={
+              <ProtectedRoute>
+                <Transfer />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </BankingProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

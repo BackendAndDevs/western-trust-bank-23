@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CreditCard, Send, ArrowLeft, Users } from "lucide-react";
-import { useBanking } from "@/contexts/BankingContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useBankingData } from "@/hooks/useBankingData";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 

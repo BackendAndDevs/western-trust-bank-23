@@ -1,0 +1,324 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+
+export interface BankAccount {
+  id: string;
+  account_number: string;
+  account_type: string;
+  balance: number;
+  currency: string;
+  is_primary: boolean;
+}
+
+export interface Transaction {
+  id: string;
+  amount: number;
+  transaction_type: string;
+  description: string;
+  status: string;
+  created_at: string;
+  account_id: string;
+}
+
+export interface LoanRequest {
+  id: string;
+  amount: number;
+  purpose: string;
+  loan_type: string;
+  status: string;
+  created_at: string;
+  annual_income?: number;
+  credit_score?: number;
+  employment_status?: string;
+}
+
+export const useBankingData = () => {
+  const { user } = useAuth();
+  const [accounts, setAccounts] = useState<BankAccount[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    } else {
+      setAccounts([]);
+      setTransactions([]);
+      setLoanRequests([]);
+      setLoading(false);
+    }
+  }, [user]);
+
+  const fetchData = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      await Promise.all([
+        fetchAccounts(),
+        fetchTransactions(),
+        fetchLoanRequests()
+      ]);
+    } catch (error) {
+      console.error('Error fetching banking data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAccounts = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching accounts:', error);
+    } else {
+      setAccounts(data || []);
+    }
+  };
+
+  const fetchTransactions = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    
+    if (error) {
+      console.error('Error fetching transactions:', error);
+    } else {
+      setTransactions(data || []);
+    }
+  };
+
+  const fetchLoanRequests = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('loan_requests')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching loan requests:', error);
+    } else {
+      setLoanRequests(data || []);
+    }
+  };
+
+  const deposit = async (amount: number, accountId?: string) => {
+    if (!user || !accounts.length) return { error: 'No account found' };
+    
+    const account = accountId ? accounts.find(a => a.id === accountId) : accounts.find(a => a.is_primary) || accounts[0];
+    if (!account) return { error: 'No account found' };
+
+    try {
+      // Update account balance
+      const { error: updateError } = await supabase
+        .from('accounts')
+        .update({ balance: account.balance + amount })
+        .eq('id', account.id);
+
+      if (updateError) throw updateError;
+
+      // Create transaction record
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          account_id: account.id,
+          transaction_type: 'deposit',
+          amount,
+          description: `Deposit of $${amount}`,
+          status: 'completed'
+        });
+
+      if (transactionError) throw transactionError;
+
+      // Refresh data
+      await fetchData();
+      return { error: null };
+    } catch (error) {
+      console.error('Error making deposit:', error);
+      return { error };
+    }
+  };
+
+  const withdraw = async (amount: number, accountId?: string) => {
+    if (!user || !accounts.length) return { error: 'No account found' };
+    
+    const account = accountId ? accounts.find(a => a.id === accountId) : accounts.find(a => a.is_primary) || accounts[0];
+    if (!account) return { error: 'No account found' };
+    if (account.balance < amount) return { error: 'Insufficient funds' };
+
+    try {
+      // Update account balance
+      const { error: updateError } = await supabase
+        .from('accounts')
+        .update({ balance: account.balance - amount })
+        .eq('id', account.id);
+
+      if (updateError) throw updateError;
+
+      // Create transaction record
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          account_id: account.id,
+          transaction_type: 'withdraw',
+          amount,
+          description: `Withdrawal of $${amount}`,
+          status: 'completed'
+        });
+
+      if (transactionError) throw transactionError;
+
+      // Refresh data
+      await fetchData();
+      return { error: null };
+    } catch (error) {
+      console.error('Error making withdrawal:', error);
+      return { error };
+    }
+  };
+
+  const transfer = async (recipientAccountNumber: string, amount: number, memo?: string) => {
+    if (!user || !accounts.length) return { error: 'No account found' };
+    
+    const senderAccount = accounts.find(a => a.is_primary) || accounts[0];
+    if (!senderAccount) return { error: 'No sender account found' };
+    if (senderAccount.balance < amount) return { error: 'Insufficient funds' };
+
+    try {
+      // Find recipient account
+      const { data: recipientAccount, error: recipientError } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('account_number', recipientAccountNumber)
+        .single();
+
+      if (recipientError || !recipientAccount) {
+        return { error: 'Recipient account not found' };
+      }
+
+      if (recipientAccount.user_id === user.id) {
+        return { error: 'Cannot transfer to your own account' };
+      }
+
+      // Update sender balance
+      const { error: senderUpdateError } = await supabase
+        .from('accounts')
+        .update({ balance: senderAccount.balance - amount })
+        .eq('id', senderAccount.id);
+
+      if (senderUpdateError) throw senderUpdateError;
+
+      // Update recipient balance
+      const { error: recipientUpdateError } = await supabase
+        .from('accounts')
+        .update({ balance: recipientAccount.balance + amount })
+        .eq('id', recipientAccount.id);
+
+      if (recipientUpdateError) throw recipientUpdateError;
+
+      // Create sender transaction
+      const { error: senderTransactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          account_id: senderAccount.id,
+          transaction_type: 'transfer_sent',
+          amount,
+          description: memo || `Transfer to ${recipientAccountNumber}`,
+          status: 'completed',
+          recipient_account_id: recipientAccount.id
+        });
+
+      if (senderTransactionError) throw senderTransactionError;
+
+      // Create recipient transaction
+      const { error: recipientTransactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: recipientAccount.user_id,
+          account_id: recipientAccount.id,
+          transaction_type: 'transfer_received',
+          amount,
+          description: memo || `Transfer from ${senderAccount.account_number}`,
+          status: 'completed',
+          recipient_account_id: senderAccount.id
+        });
+
+      if (recipientTransactionError) throw recipientTransactionError;
+
+      // Refresh data
+      await fetchData();
+      return { error: null };
+    } catch (error) {
+      console.error('Error making transfer:', error);
+      return { error };
+    }
+  };
+
+  const requestLoan = async (loanData: {
+    amount: number;
+    purpose: string;
+    loanType: string;
+    annualIncome?: number;
+    creditScore?: number;
+    employmentStatus?: string;
+  }) => {
+    if (!user) return { error: 'User not authenticated' };
+
+    try {
+      const { error } = await supabase
+        .from('loan_requests')
+        .insert({
+          user_id: user.id,
+          amount: loanData.amount,
+          purpose: loanData.purpose,
+          loan_type: loanData.loanType,
+          annual_income: loanData.annualIncome,
+          credit_score: loanData.creditScore,
+          employment_status: loanData.employmentStatus,
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
+      // Refresh data
+      await fetchLoanRequests();
+      return { error: null };
+    } catch (error) {
+      console.error('Error requesting loan:', error);
+      return { error };
+    }
+  };
+
+  const primaryAccount = accounts.find(a => a.is_primary) || accounts[0];
+
+  return {
+    accounts,
+    transactions,
+    loanRequests,
+    primaryAccount,
+    loading,
+    deposit,
+    withdraw,
+    transfer,
+    requestLoan,
+    refetchData: fetchData
+  };
+};

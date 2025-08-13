@@ -1,126 +1,165 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
+  ArrowUpRight, 
+  ArrowDownLeft, 
+  Send, 
   CreditCard, 
   DollarSign, 
   TrendingUp, 
-  TrendingDown, 
-  ArrowUpRight, 
-  ArrowDownLeft, 
-  Clock, 
-  Settings, 
+  Clock,
   LogOut,
-  Send,
-  PiggyBank,
+  User,
+  Home,
+  Plus,
+  Minus,
+  ArrowLeftRight,
   FileText
 } from "lucide-react";
-import { useBanking } from "@/contexts/BankingContext";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
-  const { currentUser, transactions, loanRequests, deposit, withdraw, transfer, requestLoan, logout } = useBanking();
-  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { 
+    primaryAccount, 
+    transactions, 
+    loanRequests, 
+    loading,
+    deposit,
+    withdraw,
+    transfer,
+    requestLoan
+  } = useBankingData();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [transferAmount, setTransferAmount] = useState("");
-  const [transferRecipient, setTransferRecipient] = useState("");
-  const [loanAmount, setLoanAmount] = useState("");
-  const [loanPurpose, setLoanPurpose] = useState("");
+  const [transferForm, setTransferForm] = useState({
+    recipient: "",
+    amount: "",
+    memo: ""
+  });
+  const [loanForm, setLoanForm] = useState({
+    amount: "",
+    purpose: "",
+    loanType: "personal",
+    annualIncome: "",
+    creditScore: "",
+    employmentStatus: ""
+  });
 
-  useEffect(() => {
-    if (!currentUser) {
-      navigate("/login");
-    }
-  }, [currentUser, navigate]);
-
-  if (!currentUser) return null;
-
-  const userTransactions = transactions.filter(t => t.userId === currentUser.id).slice(0, 10);
-  const userLoanRequests = loanRequests.filter(l => l.userId === currentUser.id);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const handleLogout = async () => {
+    await signOut();
     toast({
       title: "Logged Out",
       description: "You have been successfully logged out.",
     });
+    navigate("/");
   };
 
-  const handleDeposit = (e: React.FormEvent) => {
+  const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(depositAmount);
-    if (amount > 0) {
-      deposit(amount);
-      setDepositAmount("");
+    if (!depositAmount || parseFloat(depositAmount) <= 0) return;
+
+    const { error } = await deposit(parseFloat(depositAmount));
+    if (error) {
+      toast({
+        title: "Deposit Failed",
+        description: "Failed to process deposit. Please try again.",
+        variant: "destructive",
+      });
+    } else {
       toast({
         title: "Deposit Successful",
-        description: `$${amount.toFixed(2)} has been deposited to your account.`,
+        description: `$${depositAmount} has been deposited to your account.`,
       });
+      setDepositAmount("");
     }
   };
 
-  const handleWithdraw = (e: React.FormEvent) => {
+  const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(withdrawAmount);
-    if (amount > 0) {
-      const success = withdraw(amount);
-      if (success) {
-        setWithdrawAmount("");
-        toast({
-          title: "Withdrawal Successful",
-          description: `$${amount.toFixed(2)} has been withdrawn from your account.`,
-        });
-      } else {
-        toast({
-          title: "Withdrawal Failed",
-          description: "Insufficient funds or invalid amount.",
-          variant: "destructive",
-        });
-      }
+    if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) return;
+
+    const { error } = await withdraw(parseFloat(withdrawAmount));
+    if (error) {
+      toast({
+        title: "Withdrawal Failed",
+        description: typeof error === 'string' ? error : "Failed to process withdrawal.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Withdrawal Successful",
+        description: `$${withdrawAmount} has been withdrawn from your account.`,
+      });
+      setWithdrawAmount("");
     }
   };
 
-  const handleTransfer = (e: React.FormEvent) => {
+  const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(transferAmount);
-    if (amount > 0 && transferRecipient) {
-      const success = transfer(transferRecipient, amount);
-      if (success) {
-        setTransferAmount("");
-        setTransferRecipient("");
-        toast({
-          title: "Transfer Successful",
-          description: `$${amount.toFixed(2)} has been transferred to ${transferRecipient}.`,
-        });
-      } else {
-        toast({
-          title: "Transfer Failed",
-          description: "Insufficient funds, invalid recipient, or you cannot transfer to yourself.",
-          variant: "destructive",
-        });
-      }
+    if (!transferForm.recipient || !transferForm.amount || parseFloat(transferForm.amount) <= 0) return;
+
+    const { error } = await transfer(transferForm.recipient, parseFloat(transferForm.amount), transferForm.memo);
+    if (error) {
+      toast({
+        title: "Transfer Failed",
+        description: typeof error === 'string' ? error : "Failed to process transfer.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Transfer Successful",
+        description: `$${transferForm.amount} has been transferred successfully.`,
+      });
+      setTransferForm({ recipient: "", amount: "", memo: "" });
     }
   };
 
-  const handleLoanRequest = (e: React.FormEvent) => {
+  const handleLoanRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(loanAmount);
-    if (amount > 0 && loanPurpose) {
-      requestLoan(amount, loanPurpose);
-      setLoanAmount("");
-      setLoanPurpose("");
+    if (!loanForm.amount || !loanForm.purpose || parseFloat(loanForm.amount) <= 0) return;
+
+    const { error } = await requestLoan({
+      amount: parseFloat(loanForm.amount),
+      purpose: loanForm.purpose,
+      loanType: loanForm.loanType,
+      annualIncome: loanForm.annualIncome ? parseFloat(loanForm.annualIncome) : undefined,
+      creditScore: loanForm.creditScore ? parseInt(loanForm.creditScore) : undefined,
+      employmentStatus: loanForm.employmentStatus || undefined
+    });
+
+    if (error) {
+      toast({
+        title: "Loan Request Failed",
+        description: "Failed to submit loan request. Please try again.",
+        variant: "destructive",
+      });
+    } else {
       toast({
         title: "Loan Request Submitted",
         description: "Your loan request has been submitted for review.",
+      });
+      setLoanForm({
+        amount: "",
+        purpose: "",
+        loanType: "personal",
+        annualIncome: "",
+        creditScore: "",
+        employmentStatus: ""
       });
     }
   };
@@ -132,314 +171,535 @@ const Dashboard = () => {
     }).format(amount);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
+    });
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent flex items-center justify-center">
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading your dashboard...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold text-primary">Western Trust Bank</h1>
-                <p className="text-sm text-muted-foreground">Welcome back, {currentUser.name}</p>
-              </div>
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="text-lg font-bold text-primary">Western Trust Bank</span>
+              </Link>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-                <Link to="/profile">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
-                </Link>
-              </Button>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-muted-foreground">
+                Welcome, {user?.user_metadata?.full_name || user?.email}
+              </span>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Logout</span>
+                Logout
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Account Overview */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Account Balance</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold text-primary">{formatCurrency(currentUser.balance)}</div>
-              <p className="text-xs text-muted-foreground">Primary Checking Account</p>
+              <div className="text-2xl font-bold">
+                {primaryAccount ? formatCurrency(primaryAccount.balance) : "$0.00"}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Account: {primaryAccount?.account_number || "No account"}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Recent Transactions</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{userTransactions.length}</div>
-              <p className="text-xs text-muted-foreground">This month</p>
+              <div className="text-2xl font-bold">{transactions.length}</div>
+              <p className="text-xs text-muted-foreground">
+                Last 30 days
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="sm:col-span-2 lg:col-span-1">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Loans</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{userLoanRequests.filter(l => l.status === 'pending').length}</div>
-              <p className="text-xs text-muted-foreground">Awaiting approval</p>
+              <div className="text-2xl font-bold">
+                {loanRequests.filter(loan => loan.status === 'pending').length}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Awaiting approval
+              </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <Button asChild className="h-16 sm:h-20 flex-col space-y-1 sm:space-y-2 text-xs sm:text-sm">
-            <Link to="/deposit">
-              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span>Deposit</span>
-            </Link>
-          </Button>
-          <Button asChild className="h-16 sm:h-20 flex-col space-y-1 sm:space-y-2 text-xs sm:text-sm" variant="outline">
-            <Link to="/withdraw">
-              <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span>Withdraw</span>
-            </Link>
-          </Button>
-          <Button asChild className="h-16 sm:h-20 flex-col space-y-1 sm:space-y-2 text-xs sm:text-sm" variant="outline">
-            <Link to="/transfer">
-              <Send className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span>Transfer</span>
-            </Link>
-          </Button>
-          <Button asChild className="h-16 sm:h-20 flex-col space-y-1 sm:space-y-2 text-xs sm:text-sm" variant="outline">
-            <Link to="/profile">
-              <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span>Settings</span>
-            </Link>
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Link to="/deposit">
+            <Button className="w-full h-16" variant="outline">
+              <Plus className="w-6 h-6 mr-2" />
+              Deposit
+            </Button>
+          </Link>
+          <Link to="/withdraw">
+            <Button className="w-full h-16" variant="outline">
+              <Minus className="w-6 h-6 mr-2" />
+              Withdraw
+            </Button>
+          </Link>
+          <Link to="/transfer">
+            <Button className="w-full h-16" variant="outline">
+              <ArrowLeftRight className="w-6 h-6 mr-2" />
+              Transfer
+            </Button>
+          </Link>
+          <Link to="/profile">
+            <Button className="w-full h-16" variant="outline">
+              <User className="w-6 h-6 mr-2" />
+              Profile
+            </Button>
+          </Link>
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="transactions" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
-            <TabsTrigger value="transactions" className="px-2 sm:px-4">Transactions</TabsTrigger>
-            <TabsTrigger value="summary" className="px-2 sm:px-4">Summary</TabsTrigger>
-            <TabsTrigger value="loans" className="px-2 sm:px-4">Loans</TabsTrigger>
+        <Tabs defaultValue="transactions" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="quick-actions">Quick Actions</TabsTrigger>
+            <TabsTrigger value="loans">Loans</TabsTrigger>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
           </TabsList>
-
+          
           <TabsContent value="transactions">
             <Card>
               <CardHeader>
-                <CardTitle>Transaction History</CardTitle>
-                <CardDescription>Your recent account activity</CardDescription>
+                <CardTitle>Recent Transactions</CardTitle>
+                <CardDescription>
+                  Your latest account activity
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 sm:space-y-4">
-                  {userTransactions.length > 0 ? (
-                    userTransactions.map((transaction) => (
-                      <div key={transaction.id} className="flex items-center justify-between p-3 sm:p-4 border rounded-lg">
-                        <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                {transactions.length > 0 ? (
+                  <div className="space-y-4">
+                    {transactions.slice(0, 10).map((transaction) => (
+                      <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-3">
                           <div className={`p-2 rounded-full ${
-                            transaction.type === 'deposit' || transaction.type === 'transfer_received' 
-                              ? 'bg-success/10' 
-                              : 'bg-destructive/10'
+                            transaction.transaction_type === 'deposit' ? 'bg-green-100 text-green-600' :
+                            transaction.transaction_type === 'withdraw' ? 'bg-red-100 text-red-600' :
+                            'bg-blue-100 text-blue-600'
                           }`}>
-                            {transaction.type === 'deposit' || transaction.type === 'transfer_received' ? (
-                              <ArrowUpRight className={`w-4 h-4 ${
-                                transaction.type === 'deposit' || transaction.type === 'transfer_received' 
-                                  ? 'text-success' 
-                                  : 'text-destructive'
-                              }`} />
-                            ) : (
-                              <ArrowDownLeft className="w-4 h-4 text-destructive" />
-                            )}
+                            {transaction.transaction_type === 'deposit' ? <ArrowDownLeft className="w-4 h-4" /> :
+                             transaction.transaction_type === 'withdraw' ? <ArrowUpRight className="w-4 h-4" /> :
+                             <Send className="w-4 h-4" />}
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm sm:text-base truncate">{transaction.description}</p>
-                            <p className="text-xs sm:text-sm text-muted-foreground">
-                              {formatDate(transaction.timestamp)}
+                          <div>
+                            <p className="font-medium">{transaction.description}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {formatDate(transaction.created_at)}
                             </p>
                           </div>
                         </div>
-                        <div className={`font-semibold text-sm sm:text-base text-right ${
-                          transaction.type === 'deposit' || transaction.type === 'transfer_received' 
-                            ? 'text-success' 
-                            : 'text-destructive'
-                        }`}>
-                          {transaction.type === 'deposit' || transaction.type === 'transfer_received' ? '+' : '-'}
-                          {formatCurrency(transaction.amount)}
+                        <div className="text-right">
+                          <p className={`font-bold ${
+                            transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' 
+                              ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' ? '+' : '-'}
+                            {formatCurrency(transaction.amount)}
+                          </p>
+                          <Badge variant={transaction.status === 'completed' ? 'default' : 'secondary'}>
+                            {transaction.status}
+                          </Badge>
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">No transactions yet</p>
-                  )}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No transactions yet</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="summary">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <TabsContent value="quick-actions">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Deposit */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Account Overview</CardTitle>
-                  <CardDescription>Your account at a glance</CardDescription>
+                  <CardTitle>Deposit Money</CardTitle>
+                  <CardDescription>Add funds to your account</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3 sm:space-y-4">
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span>Account Type:</span>
-                    <span className="font-medium">Primary Checking</span>
-                  </div>
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span>Account Number:</span>
-                    <span className="font-mono">****-{currentUser.id.padStart(4, '0')}</span>
-                  </div>
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span>Available Balance:</span>
-                    <span className="font-semibold text-primary">{formatCurrency(currentUser.balance)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span>Account Status:</span>
-                    <span className="text-success">Active</span>
-                  </div>
+                <CardContent>
+                  <form onSubmit={handleDeposit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="deposit-amount">Amount</Label>
+                      <Input
+                        id="deposit-amount"
+                        type="number"
+                        placeholder="0.00"
+                        value={depositAmount}
+                        onChange={(e) => setDepositAmount(e.target.value)}
+                        min="0.01"
+                        step="0.01"
+                        required
+                      />
+                    </div>
+                    <Button type="submit" className="w-full">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Deposit
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
 
+              {/* Withdraw */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Stats</CardTitle>
-                  <CardDescription>This month's activity</CardDescription>
+                  <CardTitle>Withdraw Money</CardTitle>
+                  <CardDescription>Take money from your account</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3 sm:space-y-4">
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span>Total Transactions:</span>
-                    <span className="font-medium">{userTransactions.length}</span>
-                  </div>
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span>Deposits:</span>
-                    <span className="font-medium text-success">
-                      {userTransactions.filter(t => t.type === 'deposit').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span>Withdrawals:</span>
-                    <span className="font-medium text-warning">
-                      {userTransactions.filter(t => t.type === 'withdraw').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span>Transfers:</span>
-                    <span className="font-medium">
-                      {userTransactions.filter(t => t.type.includes('transfer')).length}
-                    </span>
-                  </div>
+                <CardContent>
+                  <form onSubmit={handleWithdraw} className="space-y-4">
+                    <div>
+                      <Label htmlFor="withdraw-amount">Amount</Label>
+                      <Input
+                        id="withdraw-amount"
+                        type="number"
+                        placeholder="0.00"
+                        value={withdrawAmount}
+                        onChange={(e) => setWithdrawAmount(e.target.value)}
+                        min="0.01"
+                        step="0.01"
+                        max={primaryAccount?.balance || 0}
+                        required
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" variant="outline">
+                      <Minus className="w-4 h-4 mr-2" />
+                      Withdraw
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Transfer */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle>Transfer Money</CardTitle>
+                  <CardDescription>Send money to another account</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleTransfer} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="transfer-recipient">Recipient Account Number</Label>
+                        <Input
+                          id="transfer-recipient"
+                          placeholder="WTB1234567"
+                          value={transferForm.recipient}
+                          onChange={(e) => setTransferForm({ ...transferForm, recipient: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="transfer-amount">Amount</Label>
+                        <Input
+                          id="transfer-amount"
+                          type="number"
+                          placeholder="0.00"
+                          value={transferForm.amount}
+                          onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
+                          min="0.01"
+                          step="0.01"
+                          max={primaryAccount?.balance || 0}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="transfer-memo">Memo (Optional)</Label>
+                      <Textarea
+                        id="transfer-memo"
+                        placeholder="What's this transfer for?"
+                        value={transferForm.memo}
+                        onChange={(e) => setTransferForm({ ...transferForm, memo: e.target.value })}
+                        rows={2}
+                      />
+                    </div>
+                    <Button type="submit" className="w-full">
+                      <Send className="w-4 h-4 mr-2" />
+                      Send Transfer
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
           <TabsContent value="loans">
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-6">
+              {/* Loan Requests */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    Request Loan
-                  </CardTitle>
-                  <CardDescription>Apply for a personal loan</CardDescription>
+                  <CardTitle>Your Loan Requests</CardTitle>
+                  <CardDescription>Track your loan applications</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loanRequests.length > 0 ? (
+                    <div className="space-y-4">
+                      {loanRequests.map((loan) => (
+                        <div key={loan.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <p className="font-medium">{formatCurrency(loan.amount)}</p>
+                            <p className="text-sm text-muted-foreground">{loan.purpose}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Applied on {formatDate(loan.created_at)}
+                            </p>
+                          </div>
+                          <Badge variant={
+                            loan.status === 'approved' ? 'default' :
+                            loan.status === 'rejected' ? 'destructive' : 'secondary'
+                          }>
+                            {loan.status}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">No loan requests yet</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Request New Loan */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Request a Loan</CardTitle>
+                  <CardDescription>Apply for a personal or business loan</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleLoanRequest} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2 sm:col-span-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
                         <Label htmlFor="loan-amount">Loan Amount</Label>
                         <Input
                           id="loan-amount"
                           type="number"
-                          placeholder="0.00"
-                          value={loanAmount}
-                          onChange={(e) => setLoanAmount(e.target.value)}
+                          placeholder="10000"
+                          value={loanForm.amount}
+                          onChange={(e) => setLoanForm({ ...loanForm, amount: e.target.value })}
                           min="100"
-                          step="100"
                           required
                         />
                       </div>
-                      <div className="space-y-2 sm:col-span-2">
-                        <Label htmlFor="loan-purpose">Purpose</Label>
-                        <Textarea
-                          id="loan-purpose"
-                          placeholder="Describe the purpose of this loan"
-                          value={loanPurpose}
-                          onChange={(e) => setLoanPurpose(e.target.value)}
-                          required
-                          className="min-h-[80px]"
+                      <div>
+                        <Label htmlFor="loan-type">Loan Type</Label>
+                        <Select value={loanForm.loanType} onValueChange={(value) => setLoanForm({ ...loanForm, loanType: value })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="personal">Personal Loan</SelectItem>
+                            <SelectItem value="auto">Auto Loan</SelectItem>
+                            <SelectItem value="mortgage">Mortgage</SelectItem>
+                            <SelectItem value="business">Business Loan</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="loan-purpose">Purpose</Label>
+                      <Textarea
+                        id="loan-purpose"
+                        placeholder="What will you use this loan for?"
+                        value={loanForm.purpose}
+                        onChange={(e) => setLoanForm({ ...loanForm, purpose: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="annual-income">Annual Income (Optional)</Label>
+                        <Input
+                          id="annual-income"
+                          type="number"
+                          placeholder="50000"
+                          value={loanForm.annualIncome}
+                          onChange={(e) => setLoanForm({ ...loanForm, annualIncome: e.target.value })}
                         />
+                      </div>
+                      <div>
+                        <Label htmlFor="credit-score">Credit Score (Optional)</Label>
+                        <Input
+                          id="credit-score"
+                          type="number"
+                          placeholder="750"
+                          value={loanForm.creditScore}
+                          onChange={(e) => setLoanForm({ ...loanForm, creditScore: e.target.value })}
+                          min="300"
+                          max="850"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="employment-status">Employment Status (Optional)</Label>
+                        <Select value={loanForm.employmentStatus} onValueChange={(value) => setLoanForm({ ...loanForm, employmentStatus: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="employed">Employed</SelectItem>
+                            <SelectItem value="self-employed">Self-Employed</SelectItem>
+                            <SelectItem value="unemployed">Unemployed</SelectItem>
+                            <SelectItem value="retired">Retired</SelectItem>
+                            <SelectItem value="student">Student</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                     <Button type="submit" className="w-full">
-                      <FileText className="w-4 h-4 mr-2" />
                       Submit Loan Request
                     </Button>
                   </form>
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Loan Requests</CardTitle>
-                  <CardDescription>Track your loan application status</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 sm:space-y-4">
-                    {userLoanRequests.length > 0 ? (
-                      userLoanRequests.map((loan) => (
-                        <div key={loan.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm sm:text-base">{formatCurrency(loan.amount)}</p>
-                            <p className="text-xs sm:text-sm text-muted-foreground truncate">{loan.purpose}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatDate(loan.timestamp)}
-                            </p>
-                          </div>
-                          <div className={`px-3 py-1 rounded-full text-xs font-medium self-start sm:self-center ${
-                            loan.status === 'approved' 
-                              ? 'bg-success/10 text-success' 
-                              : loan.status === 'rejected'
-                              ? 'bg-destructive/10 text-destructive'
-                              : 'bg-warning/10 text-warning'
-                          }`}>
-                            {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-center text-muted-foreground py-6 sm:py-8">No loan requests yet</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="summary">
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Summary</CardTitle>
+                <CardDescription>Overview of your banking activity</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-3">Account Information</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Account Number:</span>
+                        <span>{primaryAccount?.account_number || "N/A"}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Account Type:</span>
+                        <span className="capitalize">{primaryAccount?.account_type || "N/A"}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Currency:</span>
+                        <span>{primaryAccount?.currency || "USD"}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Status:</span>
+                        <Badge variant="default">Active</Badge>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold mb-3">Activity Summary</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Total Transactions:</span>
+                        <span>{transactions.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Deposits:</span>
+                        <span className="text-green-600">
+                          {transactions.filter(t => t.transaction_type === 'deposit').length}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Withdrawals:</span>
+                        <span className="text-red-600">
+                          {transactions.filter(t => t.transaction_type === 'withdraw').length}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Transfers:</span>
+                        <span className="text-blue-600">
+                          {transactions.filter(t => t.transaction_type.includes('transfer')).length}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h3 className="font-semibold mb-3">Quick Actions</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Link to="/deposit">
+                      <Button variant="outline" className="w-full">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Deposit
+                      </Button>
+                    </Link>
+                    <Link to="/withdraw">
+                      <Button variant="outline" className="w-full">
+                        <Minus className="w-4 h-4 mr-2" />
+                        Withdraw
+                      </Button>
+                    </Link>
+                    <Link to="/transfer">
+                      <Button variant="outline" className="w-full">
+                        <Send className="w-4 h-4 mr-2" />
+                        Transfer
+                      </Button>
+                    </Link>
+                    <Link to="/profile">
+                      <Button variant="outline" className="w-full">
+                        <User className="w-4 h-4 mr-2" />
+                        Profile
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
