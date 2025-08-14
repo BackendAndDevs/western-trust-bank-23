@@ -11,26 +11,27 @@ import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const Withdraw = () => {
-  const { currentUser, withdraw } = useBanking();
+  const { user } = useAuth();
+  const { primaryAccount, withdraw } = useBankingData();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("atm");
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate("/login");
+    if (!user) {
+      navigate("/auth");
     }
-  }, [currentUser, navigate]);
+  }, [user, navigate]);
 
-  if (!currentUser) return null;
+  if (!user || !primaryAccount) return null;
 
-  const handleWithdraw = (e: React.FormEvent) => {
+  const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
     const withdrawAmount = parseFloat(amount);
     if (withdrawAmount > 0) {
-      const success = withdraw(withdrawAmount);
-      if (success) {
+      const result = await withdraw(withdrawAmount);
+      if (!result.error) {
         setAmount("");
         toast({
           title: "Withdrawal Successful",
@@ -40,7 +41,7 @@ const Withdraw = () => {
       } else {
         toast({
           title: "Withdrawal Failed",
-          description: "Insufficient funds or invalid amount.",
+          description: result.error.message || "Insufficient funds or invalid amount.",
           variant: "destructive",
         });
       }
@@ -90,7 +91,7 @@ const Withdraw = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{formatCurrency(currentUser.balance)}</div>
+              <div className="text-3xl font-bold text-primary">{formatCurrency(primaryAccount.balance)}</div>
               <p className="text-sm text-muted-foreground">Primary Checking Account</p>
             </CardContent>
           </Card>
@@ -108,7 +109,7 @@ const Withdraw = () => {
                     key={suggestedAmount}
                     variant="outline"
                     onClick={() => setAmount(suggestedAmount.toString())}
-                    disabled={suggestedAmount > currentUser.balance}
+                    disabled={suggestedAmount > primaryAccount.balance}
                     className="text-center"
                   >
                     {formatCurrency(suggestedAmount)}
@@ -154,12 +155,12 @@ const Withdraw = () => {
                     onChange={(e) => setAmount(e.target.value)}
                     min="0.01"
                     step="0.01"
-                    max={currentUser.balance}
+                    max={primaryAccount.balance}
                     required
                     className="text-lg"
                   />
                   <p className="text-sm text-muted-foreground">
-                    Available: {formatCurrency(currentUser.balance)}
+                    Available: {formatCurrency(primaryAccount.balance)}
                   </p>
                 </div>
 
@@ -177,7 +178,7 @@ const Withdraw = () => {
                   type="submit" 
                   className="w-full" 
                   size="lg"
-                  disabled={!amount || parseFloat(amount) > currentUser.balance}
+                  disabled={!amount || parseFloat(amount) > primaryAccount.balance}
                 >
                   <Banknote className="w-4 h-4 mr-2" />
                   Withdraw {amount ? formatCurrency(parseFloat(amount) || 0) : "Funds"}

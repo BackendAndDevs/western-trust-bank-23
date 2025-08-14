@@ -11,31 +11,40 @@ import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const Deposit = () => {
-  const { currentUser, deposit } = useBanking();
+  const { user } = useAuth();
+  const { primaryAccount, deposit } = useBankingData();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("check");
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate("/login");
+    if (!user) {
+      navigate("/auth");
     }
-  }, [currentUser, navigate]);
+  }, [user, navigate]);
 
-  if (!currentUser) return null;
+  if (!user || !primaryAccount) return null;
 
-  const handleDeposit = (e: React.FormEvent) => {
+  const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
     const depositAmount = parseFloat(amount);
     if (depositAmount > 0) {
-      deposit(depositAmount);
-      setAmount("");
-      toast({
-        title: "Deposit Successful",
-        description: `$${depositAmount.toFixed(2)} has been deposited to your account via ${method}.`,
-      });
-      navigate("/dashboard");
+      const result = await deposit(depositAmount);
+      if (!result.error) {
+        setAmount("");
+        toast({
+          title: "Deposit Successful",
+          description: `$${depositAmount.toFixed(2)} has been deposited to your account via ${method}.`,
+        });
+        navigate("/dashboard");
+      } else {
+        toast({
+          title: "Deposit Failed",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -80,7 +89,7 @@ const Deposit = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{formatCurrency(currentUser.balance)}</div>
+              <div className="text-3xl font-bold text-primary">{formatCurrency(primaryAccount.balance)}</div>
               <p className="text-sm text-muted-foreground">Primary Checking Account</p>
             </CardContent>
           </Card>

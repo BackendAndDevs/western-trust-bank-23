@@ -11,7 +11,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const Transfer = () => {
-  const { currentUser, transfer, users } = useBanking();
+  const { user } = useAuth();
+  const { primaryAccount, transfer } = useBankingData();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
@@ -19,19 +20,19 @@ const Transfer = () => {
   const [memo, setMemo] = useState("");
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate("/login");
+    if (!user) {
+      navigate("/auth");
     }
-  }, [currentUser, navigate]);
+  }, [user, navigate]);
 
-  if (!currentUser) return null;
+  if (!user || !primaryAccount) return null;
 
-  const handleTransfer = (e: React.FormEvent) => {
+  const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
     const transferAmount = parseFloat(amount);
     if (transferAmount > 0 && recipient) {
-      const success = transfer(recipient, transferAmount);
-      if (success) {
+      const result = await transfer(recipient, transferAmount, memo);
+      if (!result.error) {
         setAmount("");
         setRecipient("");
         setMemo("");
@@ -43,7 +44,7 @@ const Transfer = () => {
       } else {
         toast({
           title: "Transfer Failed",
-          description: "Insufficient funds, invalid recipient, or you cannot transfer to yourself.",
+          description: result.error.message || "Insufficient funds, invalid recipient, or you cannot transfer to yourself.",
           variant: "destructive",
         });
       }
@@ -57,10 +58,12 @@ const Transfer = () => {
     }).format(amount);
   };
 
-  // Get other users for suggestions (excluding current user and admin)
-  const otherUsers = users.filter(user => 
-    user.id !== currentUser.id && !user.isAdmin
-  );
+  // For demo purposes, show some example recipients
+  const exampleRecipients = [
+    { name: "John Doe", username: "john_doe" },
+    { name: "Jane Smith", username: "jane_smith" },
+    { name: "Mike Johnson", username: "mike_j" }
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,13 +99,13 @@ const Transfer = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{formatCurrency(currentUser.balance)}</div>
+              <div className="text-3xl font-bold text-primary">{formatCurrency(primaryAccount.balance)}</div>
               <p className="text-sm text-muted-foreground">Primary Checking Account</p>
             </CardContent>
           </Card>
 
           {/* Quick Recipients */}
-          {otherUsers.length > 0 && (
+          {exampleRecipients.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Quick Transfer</CardTitle>
@@ -110,17 +113,17 @@ const Transfer = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {otherUsers.slice(0, 3).map((user) => (
+                  {exampleRecipients.map((recipient) => (
                     <Button
-                      key={user.id}
+                      key={recipient.username}
                       variant="outline"
                       className="w-full justify-start"
-                      onClick={() => setRecipient(user.username)}
+                      onClick={() => setRecipient(recipient.username)}
                     >
                       <Users className="w-4 h-4 mr-2" />
                       <div className="text-left">
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-muted-foreground">@{user.username}</div>
+                        <div className="font-medium">{recipient.name}</div>
+                        <div className="text-sm text-muted-foreground">@{recipient.username}</div>
                       </div>
                     </Button>
                   ))}
@@ -165,12 +168,12 @@ const Transfer = () => {
                     onChange={(e) => setAmount(e.target.value)}
                     min="0.01"
                     step="0.01"
-                    max={currentUser.balance}
+                    max={primaryAccount.balance}
                     required
                     className="text-lg"
                   />
                   <p className="text-sm text-muted-foreground">
-                    Available: {formatCurrency(currentUser.balance)}
+                    Available: {formatCurrency(primaryAccount.balance)}
                   </p>
                 </div>
 
@@ -202,7 +205,7 @@ const Transfer = () => {
                   type="submit" 
                   className="w-full" 
                   size="lg"
-                  disabled={!amount || !recipient || parseFloat(amount) > currentUser.balance}
+                  disabled={!amount || !recipient || parseFloat(amount) > primaryAccount.balance}
                 >
                   <Send className="w-4 h-4 mr-2" />
                   Send {amount ? formatCurrency(parseFloat(amount) || 0) : "Transfer"}

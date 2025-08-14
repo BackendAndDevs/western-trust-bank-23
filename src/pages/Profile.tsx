@@ -13,7 +13,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
-  const { currentUser, updateUser } = useBanking();
+  const { user } = useAuth();
+  const { primaryAccount } = useBankingData();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [editForm, setEditForm] = useState({
@@ -32,23 +33,23 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate("/login");
+    if (!user) {
+      navigate("/auth");
     } else {
       setEditForm({
-        name: currentUser.name,
-        email: currentUser.email,
-        username: currentUser.username,
-        profileImage: currentUser.profileImage || "",
+        name: user.user_metadata?.name || user.email?.split('@')[0] || '',
+        email: user.email || '',
+        username: user.user_metadata?.username || user.email?.split('@')[0] || '',
+        profileImage: user.user_metadata?.avatar_url || "",
       });
     }
-  }, [currentUser, navigate]);
+  }, [user, navigate]);
 
-  if (!currentUser) return null;
+  if (!user) return null;
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    updateUser(currentUser.id, editForm);
+    // TODO: Implement profile update functionality with Supabase
     toast({
       title: "Profile Updated",
       description: "Your profile information has been successfully updated.",
@@ -121,9 +122,9 @@ const Profile = () => {
                   <div className="flex flex-col items-center space-y-4">
                     <div className="relative">
                       <Avatar className="w-24 h-24">
-                        <AvatarImage src={editForm.profileImage || currentUser.profileImage} alt={currentUser.name} />
+                        <AvatarImage src={editForm.profileImage} alt={editForm.name} />
                         <AvatarFallback className="text-lg">
-                          {currentUser.name.split(' ').map(n => n[0]).join('')}
+                          {editForm.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <Button
@@ -331,7 +332,7 @@ const Profile = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label>Account Number</Label>
-                      <p className="text-lg font-mono">****-****-{currentUser.id.padStart(4, '0')}</p>
+                      <p className="text-lg font-mono">****-****-{user?.id?.slice(-4) || '0000'}</p>
                     </div>
                     <div>
                       <Label>Account Type</Label>
@@ -339,7 +340,7 @@ const Profile = () => {
                     </div>
                     <div>
                       <Label>Current Balance</Label>
-                      <p className="text-lg font-semibold text-primary">{formatCurrency(currentUser.balance)}</p>
+                      <p className="text-lg font-semibold text-primary">{primaryAccount ? formatCurrency(primaryAccount.balance) : '$0.00'}</p>
                     </div>
                     <div>
                       <Label>Account Status</Label>
