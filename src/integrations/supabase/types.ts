@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -23,6 +23,8 @@ export type Database = {
           currency: string
           id: string
           is_primary: boolean | null
+          modified_at: string | null
+          modified_by: string | null
           updated_at: string
           user_id: string
         }
@@ -34,6 +36,8 @@ export type Database = {
           currency?: string
           id?: string
           is_primary?: boolean | null
+          modified_at?: string | null
+          modified_by?: string | null
           updated_at?: string
           user_id: string
         }
@@ -45,6 +49,8 @@ export type Database = {
           currency?: string
           id?: string
           is_primary?: boolean | null
+          modified_at?: string | null
+          modified_by?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -111,6 +117,8 @@ export type Database = {
           id: string
           loan_type: string
           purpose: string
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: string | null
           updated_at: string
           user_id: string
@@ -125,6 +133,8 @@ export type Database = {
           id?: string
           loan_type: string
           purpose: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string | null
           updated_at?: string
           user_id: string
@@ -139,6 +149,8 @@ export type Database = {
           id?: string
           loan_type?: string
           purpose?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string | null
           updated_at?: string
           user_id?: string
@@ -249,6 +261,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_review_loan: {
+        Args: { admin_notes?: string; loan_id: string; new_status: string }
+        Returns: undefined
+      }
+      admin_update_account_balance: {
+        Args: {
+          admin_notes?: string
+          new_balance: number
+          target_account_id: string
+        }
+        Returns: undefined
+      }
       generate_account_number: {
         Args: Record<PropertyKey, never>
         Returns: string
