@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Building2, Users, DollarSign, Clock, TrendingUp, Shield, LogOut, Eye, Check, X, Edit, UserPlus } from "lucide-react";
@@ -529,9 +529,9 @@ const EnhancedAdminDashboard = () => {
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Create New User</DialogTitle>
-              <DialogDescription>
+              <p className="text-sm text-muted-foreground">
                 Create a new user account with initial balance and role.
-              </DialogDescription>
+              </p>
             </DialogHeader>
             <div className="space-y-4">
               <div>
