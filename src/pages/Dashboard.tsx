@@ -198,24 +198,25 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-card shadow-sm border-b sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            <div className="flex items-center space-x-3 sm:space-x-4">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-primary-foreground" />
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center">
+                  <CreditCard className="w-3 h-3 sm:w-5 sm:h-5 text-primary-foreground" />
                 </div>
-                <span className="text-lg font-bold text-primary">Western Trust Bank</span>
+                <span className="text-base sm:text-lg font-bold text-primary hidden sm:block">Western Trust Bank</span>
+                <span className="text-sm font-bold text-primary sm:hidden">WTB</span>
               </Link>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Navigation />
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs sm:text-sm text-muted-foreground hidden md:block max-w-32 sm:max-w-none truncate">
                 Welcome, {user?.user_metadata?.full_name || user?.email}
               </span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="hidden sm:flex">
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
@@ -224,44 +225,44 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Account Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <Card className="bg-card/80 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Account Balance</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold">
                 {primaryAccount ? formatCurrency(primaryAccount.balance) : "$0.00"}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground truncate">
                 Account: {primaryAccount?.account_number || "No account"}
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-card/80 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Recent Transactions</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{transactions.length}</div>
+              <div className="text-xl sm:text-2xl font-bold">{transactions.length}</div>
               <p className="text-xs text-muted-foreground">
                 Last 30 days
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-card/80 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Loans</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold">
                 {loanRequests.filter(loan => loan.status === 'pending').length}
               </div>
               <p className="text-xs text-muted-foreground">
@@ -272,93 +273,93 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
-          <Link to="/deposit">
-            <Button className="w-full h-16" variant="outline">
-              <Plus className="w-6 h-6 mr-2" />
-              Deposit
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <Link to="/deposit" className="block">
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+              <Plus className="w-4 h-4 sm:w-6 sm:h-6" />
+              <span className="text-xs sm:text-sm">Deposit</span>
             </Button>
           </Link>
-          <Link to="/withdraw">
-            <Button className="w-full h-16" variant="outline">
-              <Minus className="w-6 h-6 mr-2" />
-              Withdraw
+          <Link to="/withdraw" className="block">
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+              <Minus className="w-4 h-4 sm:w-6 sm:h-6" />
+              <span className="text-xs sm:text-sm">Withdraw</span>
             </Button>
           </Link>
-          <Link to="/transfer">
-            <Button className="w-full h-16" variant="outline">
-              <ArrowLeftRight className="w-6 h-6 mr-2" />
-              Transfer
+          <Link to="/transfer" className="block">
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+              <ArrowLeftRight className="w-4 h-4 sm:w-6 sm:h-6" />
+              <span className="text-xs sm:text-sm">Transfer</span>
             </Button>
           </Link>
-          <Link to="/bills">
-            <Button className="w-full h-16" variant="outline">
-              <FileText className="w-6 h-6 mr-2" />
-              Bills
+          <Link to="/bills" className="block">
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+              <FileText className="w-4 h-4 sm:w-6 sm:h-6" />
+              <span className="text-xs sm:text-sm">Bills</span>
             </Button>
           </Link>
-          <Link to="/services">
-            <Button className="w-full h-16" variant="outline">
-              <CreditCard className="w-6 h-6 mr-2" />
-              Services
+          <Link to="/services" className="block">
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+              <CreditCard className="w-4 h-4 sm:w-6 sm:h-6" />
+              <span className="text-xs sm:text-sm">Services</span>
             </Button>
           </Link>
-          <Link to="/profile">
-            <Button className="w-full h-16" variant="outline">
-              <User className="w-6 h-6 mr-2" />
-              Profile
+          <Link to="/profile" className="block">
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+              <User className="w-4 h-4 sm:w-6 sm:h-6" />
+              <span className="text-xs sm:text-sm">Profile</span>
             </Button>
           </Link>
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="transactions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="quick-actions">Quick Actions</TabsTrigger>
-            <TabsTrigger value="loans">Loans</TabsTrigger>
-            <TabsTrigger value="summary">Summary</TabsTrigger>
+        <Tabs defaultValue="transactions" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 bg-card/80 backdrop-blur-sm">
+            <TabsTrigger value="transactions" className="text-xs sm:text-sm">Transactions</TabsTrigger>
+            <TabsTrigger value="quick-actions" className="text-xs sm:text-sm">Quick Actions</TabsTrigger>
+            <TabsTrigger value="loans" className="text-xs sm:text-sm">Loans</TabsTrigger>
+            <TabsTrigger value="summary" className="text-xs sm:text-sm">Summary</TabsTrigger>
           </TabsList>
           
           <TabsContent value="transactions">
-            <Card>
+            <Card className="bg-card/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Recent Transactions</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-lg sm:text-xl">Recent Transactions</CardTitle>
+                <CardDescription className="text-sm">
                   Your latest account activity (pending transactions require admin approval)
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {transactions.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {transactions.slice(0, 10).map((transaction) => (
-                      <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div key={transaction.id} className="flex items-center justify-between p-3 sm:p-4 border rounded-lg bg-background/50">
                         <div className="flex items-center space-x-3">
                           <div className={`p-2 rounded-full ${
                             transaction.transaction_type === 'deposit' ? 'bg-green-100 text-green-600' :
                             transaction.transaction_type === 'withdraw' ? 'bg-red-100 text-red-600' :
                             'bg-blue-100 text-blue-600'
                           }`}>
-                            {transaction.transaction_type === 'deposit' ? <ArrowDownLeft className="w-4 h-4" /> :
-                             transaction.transaction_type === 'withdraw' ? <ArrowUpRight className="w-4 h-4" /> :
-                             <Send className="w-4 h-4" />}
+                            {transaction.transaction_type === 'deposit' ? <ArrowDownLeft className="w-3 h-3 sm:w-4 sm:h-4" /> :
+                             transaction.transaction_type === 'withdraw' ? <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4" /> :
+                             <Send className="w-3 h-3 sm:w-4 sm:h-4" />}
                           </div>
-                          <div>
-                            <p className="font-medium">{transaction.description}</p>
-                            <p className="text-sm text-muted-foreground">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm sm:text-base truncate">{transaction.description}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               {formatDate(transaction.created_at)}
                             </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className={`font-bold ${
+                        <div className="text-right flex-shrink-0">
+                          <p className={`font-bold text-sm sm:text-base ${
                             transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' 
                               ? 'text-green-600' : 'text-red-600'
                           }`}>
                             {transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' ? '+' : '-'}
                             {formatCurrency(transaction.amount)}
                           </p>
-                          <Badge variant={transaction.status === 'completed' ? 'default' : 'secondary'}>
+                          <Badge variant={transaction.status === 'completed' ? 'default' : 'secondary'} className="text-xs">
                             {transaction.status}
                           </Badge>
                         </div>
@@ -376,11 +377,11 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="quick-actions">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Deposit */}
-              <Card>
+              <Card className="bg-card/80 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle>Deposit Money</CardTitle>
+                  <CardTitle className="text-lg">Deposit Money</CardTitle>
                   <CardDescription>Add funds to your account</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -396,6 +397,7 @@ const Dashboard = () => {
                         min="0.01"
                         step="0.01"
                         required
+                        className="bg-background/50"
                       />
                     </div>
                     <Button type="submit" className="w-full">
@@ -407,9 +409,9 @@ const Dashboard = () => {
               </Card>
 
               {/* Withdraw */}
-              <Card>
+              <Card className="bg-card/80 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle>Withdraw Money</CardTitle>
+                  <CardTitle className="text-lg">Withdraw Money</CardTitle>
                   <CardDescription>Take money from your account</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -426,6 +428,7 @@ const Dashboard = () => {
                         step="0.01"
                         max={primaryAccount?.balance || 0}
                         required
+                        className="bg-background/50"
                       />
                     </div>
                     <Button type="submit" className="w-full" variant="outline">
@@ -437,14 +440,14 @@ const Dashboard = () => {
               </Card>
 
               {/* Transfer */}
-              <Card className="md:col-span-2">
+              <Card className="lg:col-span-2 bg-card/80 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle>Transfer Money</CardTitle>
+                  <CardTitle className="text-lg">Transfer Money</CardTitle>
                   <CardDescription>Send money to another account</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleTransfer} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="transfer-recipient">Recipient Account Number</Label>
                         <Input
@@ -453,6 +456,7 @@ const Dashboard = () => {
                           value={transferForm.recipient}
                           onChange={(e) => setTransferForm({ ...transferForm, recipient: e.target.value })}
                           required
+                          className="bg-background/50"
                         />
                       </div>
                       <div>
@@ -467,6 +471,7 @@ const Dashboard = () => {
                           step="0.01"
                           max={primaryAccount?.balance || 0}
                           required
+                          className="bg-background/50"
                         />
                       </div>
                     </div>
@@ -477,7 +482,7 @@ const Dashboard = () => {
                         placeholder="What's this transfer for?"
                         value={transferForm.memo}
                         onChange={(e) => setTransferForm({ ...transferForm, memo: e.target.value })}
-                        rows={2}
+                        className="bg-background/50"
                       />
                     </div>
                     <Button type="submit" className="w-full">

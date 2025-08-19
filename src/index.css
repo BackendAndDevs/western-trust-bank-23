@@ -59,6 +59,10 @@
     --neutral-800: 217 33% 17%;
     --neutral-900: 220 14% 11%;
 
+    --banking-green: 142 76% 36%;
+    --banking-green-light: 142 50% 88%;
+    --banking-green-dark: 142 76% 25%;
+
     --gradient-primary: linear-gradient(135deg, hsl(var(--banking-green)), hsl(var(--banking-green-dark)));
     --gradient-accent: linear-gradient(135deg, hsl(var(--banking-green-light)), hsl(var(--banking-green)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--neutral-50)));
@@ -66,10 +70,6 @@
     --shadow-elegant: 0 10px 30px -10px hsl(var(--banking-green) / 0.15);
     --shadow-green: 0 0 40px hsl(var(--banking-green) / 0.2);
     --shadow-card: 0 4px 6px -1px hsl(var(--neutral-900) / 0.1);
-
-    --banking-green: 142 76% 36%;
-    --banking-green-light: 142 50% 88%;
-    --banking-green-dark: 142 76% 25%;
 
     --radius: 0.5rem;
 
@@ -136,5 +136,31 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .bg-gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .bg-gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+  
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .shadow-green {
+    box-shadow: var(--shadow-green);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
   }
 }
