@@ -282,6 +282,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_create_user: {
+        Args: {
+          email: string
+          full_name: string
+          initial_balance?: number
+          password: string
+          user_role?: string
+        }
+        Returns: Json
+      }
       admin_get_all_accounts: {
         Args: Record<PropertyKey, never>
         Returns: {
