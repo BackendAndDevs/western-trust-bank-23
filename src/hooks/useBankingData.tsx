@@ -56,6 +56,9 @@ export const useBankingData = () => {
     
     setLoading(true);
     try {
+      // First ensure user has an account
+      await ensureUserAccount();
+      
       await Promise.all([
         fetchAccounts(),
         fetchTransactions(),
@@ -65,6 +68,42 @@ export const useBankingData = () => {
       console.error('Error fetching banking data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const ensureUserAccount = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: existingAccounts, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      if (error) {
+        console.error('Error checking accounts:', error);
+        return;
+      }
+      
+      // If user has no accounts, create one
+      if (!existingAccounts || existingAccounts.length === 0) {
+        const { error: insertError } = await supabase
+          .from('accounts')
+          .insert({
+            user_id: user.id,
+            account_number: `WTB${Math.floor(Math.random() * 10000000).toString().padStart(7, '0')}`,
+            account_type: 'checking',
+            balance: 1000.00, // Demo balance
+            is_primary: true,
+            currency: 'USD'
+          });
+        
+        if (insertError) {
+          console.error('Error creating account:', insertError);
+        }
+      }
+    } catch (error) {
+      console.error('Error ensuring user account:', error);
     }
   };
 

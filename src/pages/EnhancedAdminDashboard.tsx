@@ -6,29 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  CreditCard, 
-  Users, 
-  FileText, 
-  TrendingUp, 
-  LogOut,
-  ArrowUpRight,
-  ArrowDownLeft,
-  CheckCircle,
-  XCircle,
-  Clock,
-  DollarSign,
-  Edit,
-  Eye,
-  AlertTriangle
-} from "lucide-react";
+import { Building2, Users, DollarSign, Clock, TrendingUp, Shield, LogOut, Eye, Check, X, Edit, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminData } from "@/hooks/useAdminData";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import Navigation from "@/components/Navigation";
+import { supabase } from "@/integrations/supabase/client";
 
 const EnhancedAdminDashboard = () => {
   const { user, signOut } = useAuth();
@@ -43,7 +29,8 @@ const EnhancedAdminDashboard = () => {
     loading,
     processTransaction,
     reviewLoan,
-    updateAccountBalance
+    updateAccountBalance,
+    refetchData
   } = useAdminData();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -51,7 +38,19 @@ const EnhancedAdminDashboard = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [selectedLoan, setSelectedLoan] = useState(null);
   const [selectedAccount, setSelectedAccount] = useState(null);
-  const [editForm, setEditForm] = useState({ balance: "", notes: "" });
+  const [editForm, setEditForm] = useState({
+    accountId: '',
+    newBalance: '',
+    notes: ''
+  });
+  const [createUserForm, setCreateUserForm] = useState({
+    email: '',
+    password: '',
+    fullName: '',
+    initialBalance: 1000,
+    role: 'user'
+  });
+  const [showCreateUser, setShowCreateUser] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
@@ -63,12 +62,12 @@ const EnhancedAdminDashboard = () => {
   };
 
   const handleProcessTransaction = async (transactionId: string, status: 'approved' | 'rejected') => {
-    const { error } = await processTransaction(transactionId, status);
-    if (error) {
+    const result = await processTransaction(transactionId, status);
+    if (result?.error) {
       toast({
         title: "Error",
         description: "Failed to process transaction.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } else {
       toast({
@@ -79,12 +78,12 @@ const EnhancedAdminDashboard = () => {
   };
 
   const handleReviewLoan = async (loanId: string, status: 'approved' | 'rejected', notes?: string) => {
-    const { error } = await reviewLoan(loanId, status, notes);
-    if (error) {
+    const result = await reviewLoan(loanId, status, notes);
+    if (result?.error) {
       toast({
         title: "Error",
         description: "Failed to process loan request.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } else {
       toast({
@@ -94,21 +93,72 @@ const EnhancedAdminDashboard = () => {
     }
   };
 
-  const handleUpdateBalance = async (accountId: string, newBalance: number, notes: string) => {
-    const { error } = await updateAccountBalance(accountId, newBalance, notes);
-    if (error) {
+  const handleUpdateBalance = async () => {
+    if (!editForm.accountId || !editForm.newBalance) return;
+
+    const result = await updateAccountBalance(
+      editForm.accountId, 
+      parseFloat(editForm.newBalance),
+      editForm.notes
+    );
+
+    if (result?.error) {
       toast({
         title: "Error",
         description: "Failed to update account balance.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } else {
       toast({
         title: "Success",
         description: "Account balance updated successfully.",
       });
-      setEditForm({ balance: "", notes: "" });
       setSelectedAccount(null);
+      setEditForm({ accountId: '', newBalance: '', notes: '' });
+    }
+  };
+
+  const handleCreateUser = async () => {
+    if (!createUserForm.email || !createUserForm.password || !createUserForm.fullName) return;
+
+    try {
+      const { data, error } = await supabase.rpc('admin_create_user', {
+        email: createUserForm.email,
+        password: createUserForm.password,
+        full_name: createUserForm.fullName,
+        initial_balance: createUserForm.initialBalance,
+        user_role: createUserForm.role
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create user: " + error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: `User ${createUserForm.fullName} created successfully!`,
+        });
+        setCreateUserForm({
+          email: '',
+          password: '',
+          fullName: '',
+          initialBalance: 1000,
+          role: 'user'
+        });
+        setShowCreateUser(false);
+        // Refresh data
+        refetchData();
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create user.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -131,7 +181,7 @@ const EnhancedAdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
@@ -149,21 +199,26 @@ const EnhancedAdminDashboard = () => {
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-primary-foreground" />
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-primary">Western Trust Bank Admin</h1>
-                <p className="text-sm text-muted-foreground">Administrator Dashboard</p>
+                <h1 className="text-2xl font-bold text-foreground">Western Trust Bank</h1>
+                <p className="text-muted-foreground">Admin Dashboard</p>
               </div>
             </div>
-            
             <div className="flex items-center space-x-4">
-              <Navigation />
-              <Badge variant="destructive">Admin</Badge>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
+              <Button onClick={() => setShowCreateUser(true)}>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Create User
+              </Button>
+              <Badge variant="outline" className="border-primary text-primary">
+                <Shield className="w-4 h-4 mr-2" />
+                Administrator
+              </Badge>
+              <Button variant="outline" onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
@@ -173,7 +228,7 @@ const EnhancedAdminDashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Admin Overview */}
+        {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -181,7 +236,7 @@ const EnhancedAdminDashboard = () => {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{totalUsers}</div>
+              <div className="text-2xl font-bold">{totalUsers}</div>
               <p className="text-xs text-muted-foreground">Active accounts</p>
             </CardContent>
           </Card>
@@ -192,7 +247,7 @@ const EnhancedAdminDashboard = () => {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{formatCurrency(totalBalance)}</div>
+              <div className="text-2xl font-bold">{formatCurrency(totalBalance)}</div>
               <p className="text-xs text-muted-foreground">All accounts combined</p>
             </CardContent>
           </Card>
@@ -211,7 +266,7 @@ const EnhancedAdminDashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Loans</CardTitle>
-              <FileText className="h-4 w-4 text-warning" />
+              <TrendingUp className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-warning">{pendingLoans.length}</div>
@@ -220,25 +275,21 @@ const EnhancedAdminDashboard = () => {
           </Card>
         </div>
 
-        {/* Alerts */}
+        {/* Alert for pending items */}
         {(pendingTransactions.length > 0 || pendingLoans.length > 0) && (
           <Alert className="mb-6">
-            <AlertTriangle className="h-4 w-4" />
+            <Clock className="h-4 w-4" />
             <AlertDescription>
               You have {pendingTransactions.length} pending transactions and {pendingLoans.length} pending loan requests that require your attention.
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Admin Content */}
+        {/* Main Content Tabs */}
         <Tabs defaultValue="pending-transactions" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="pending-transactions">
-              Pending Transactions ({pendingTransactions.length})
-            </TabsTrigger>
-            <TabsTrigger value="pending-loans">
-              Pending Loans ({pendingLoans.length})
-            </TabsTrigger>
+            <TabsTrigger value="pending-transactions">Pending Transactions</TabsTrigger>
+            <TabsTrigger value="pending-loans">Pending Loans</TabsTrigger>
             <TabsTrigger value="accounts">User Accounts</TabsTrigger>
             <TabsTrigger value="all-transactions">All Transactions</TabsTrigger>
           </TabsList>
@@ -247,61 +298,42 @@ const EnhancedAdminDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Pending Transactions</CardTitle>
-                <CardDescription>Transactions awaiting admin approval</CardDescription>
+                <CardDescription>Transactions awaiting approval</CardDescription>
               </CardHeader>
               <CardContent>
                 {pendingTransactions.length > 0 ? (
                   <div className="space-y-4">
                     {pendingTransactions.map((transaction) => (
                       <div key={transaction.id} className="p-4 border rounded-lg">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center space-x-4">
-                            <div className="p-2 bg-warning/10 rounded-full">
-                              <Clock className="w-4 h-4 text-warning" />
-                            </div>
-                            <div>
-                              <p className="font-medium">{transaction.description}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {transaction.user_name || transaction.user_email}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                Account: {transaction.account_number}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {formatDate(transaction.created_at)}
-                              </p>
-                            </div>
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <p className="font-medium">{transaction.description}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {transaction.user_name} ({transaction.user_email})
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDate(transaction.created_at)}
+                            </p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-lg">{formatCurrency(transaction.amount)}</p>
-                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                              {transaction.transaction_type.replace('_', ' ')}
-                            </Badge>
+                            <p className="text-lg font-bold">{formatCurrency(transaction.amount)}</p>
+                            <Badge variant="secondary">{transaction.transaction_type}</Badge>
                           </div>
                         </div>
-                        
-                        {transaction.recipient_info && (
-                          <div className="mb-4 p-3 bg-muted rounded">
-                            <p className="text-sm font-medium">Additional Info:</p>
-                            <p className="text-sm">{JSON.stringify(transaction.recipient_info, null, 2)}</p>
-                          </div>
-                        )}
-                        
                         <div className="flex space-x-2">
                           <Button 
                             size="sm" 
                             onClick={() => handleProcessTransaction(transaction.id, 'approved')}
-                            className="bg-green-600 hover:bg-green-700"
                           >
-                            <CheckCircle className="w-4 h-4 mr-2" />
+                            <Check className="w-4 h-4 mr-2" />
                             Approve
                           </Button>
                           <Button 
                             size="sm" 
-                            variant="destructive"
+                            variant="destructive" 
                             onClick={() => handleProcessTransaction(transaction.id, 'rejected')}
                           >
-                            <XCircle className="w-4 h-4 mr-2" />
+                            <X className="w-4 h-4 mr-2" />
                             Reject
                           </Button>
                         </div>
@@ -310,7 +342,6 @@ const EnhancedAdminDashboard = () => {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <CheckCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">No pending transactions</p>
                   </div>
                 )}
@@ -329,74 +360,43 @@ const EnhancedAdminDashboard = () => {
                   <div className="space-y-4">
                     {pendingLoans.map((loan) => (
                       <div key={loan.id} className="p-4 border rounded-lg">
-                        <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center justify-between mb-4">
                           <div>
                             <p className="font-medium">{loan.purpose}</p>
                             <p className="text-sm text-muted-foreground">
-                              {loan.user_name || loan.user_email}
-                            </p>
-                            <p className="text-sm text-muted-foreground capitalize">
-                              Type: {loan.loan_type.replace('_', ' ')}
+                              {loan.user_name} ({loan.user_email})
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {formatDate(loan.created_at)}
+                              Type: {loan.loan_type} | {formatDate(loan.created_at)}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-lg">{formatCurrency(loan.amount)}</p>
-                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                              Pending
-                            </Badge>
+                            <p className="text-lg font-bold">{formatCurrency(loan.amount)}</p>
+                            <Badge variant="secondary">Pending</Badge>
                           </div>
                         </div>
-                        
-                        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                          {loan.annual_income && (
-                            <div>
-                              <span className="font-medium">Annual Income:</span>
-                              <p>{formatCurrency(loan.annual_income)}</p>
-                            </div>
-                          )}
-                          {loan.credit_score && (
-                            <div>
-                              <span className="font-medium">Credit Score:</span>
-                              <p>{loan.credit_score}</p>
-                            </div>
-                          )}
-                          {loan.employment_status && (
-                            <div>
-                              <span className="font-medium">Employment:</span>
-                              <p className="capitalize">{loan.employment_status.replace('_', ' ')}</p>
-                            </div>
-                          )}
+                        <div className="flex space-x-2">
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleReviewLoan(loan.id, 'approved')}
+                          >
+                            <Check className="w-4 h-4 mr-2" />
+                            Approve
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive" 
+                            onClick={() => handleReviewLoan(loan.id, 'rejected')}
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Reject
+                          </Button>
                         </div>
-                        
-                        <Dialog>
-                          <div className="flex space-x-2">
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleReviewLoan(loan.id, 'approved')}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Approve
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="destructive"
-                              onClick={() => handleReviewLoan(loan.id, 'rejected')}
-                            >
-                              <XCircle className="w-4 h-4 mr-2" />
-                              Reject
-                            </Button>
-                          </div>
-                        </Dialog>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <CheckCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">No pending loan requests</p>
                   </div>
                 )}
@@ -407,89 +407,36 @@ const EnhancedAdminDashboard = () => {
           <TabsContent value="accounts">
             <Card>
               <CardHeader>
-                <CardTitle>User Account Management</CardTitle>
-                <CardDescription>Manage user accounts and balances</CardDescription>
+                <CardTitle>User Accounts</CardTitle>
+                <CardDescription>Manage user account balances</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {accounts.map((account) => (
                     <div key={account.id} className="p-4 border rounded-lg">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                            <Users className="w-5 h-5 text-primary" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{account.user_name || account.user_email}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Account: {account.account_number}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Type: {account.account_type} | Currency: {account.currency}
-                            </p>
-                          </div>
+                        <div>
+                          <p className="font-medium">{account.user_name}</p>
+                          <p className="text-sm text-muted-foreground">{account.user_email}</p>
+                          <p className="text-xs text-muted-foreground">Account: {account.account_number}</p>
                         </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="text-right">
-                            <p className="font-bold text-lg">{formatCurrency(Number(account.balance))}</p>
-                            {account.is_primary && (
-                              <Badge variant="secondary">Primary</Badge>
-                            )}
-                          </div>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => {
-                                  setSelectedAccount(account);
-                                  setEditForm({ balance: account.balance.toString(), notes: "" });
-                                }}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Edit Account Balance</DialogTitle>
-                              </DialogHeader>
-                              <div className="space-y-4">
-                                <div>
-                                  <Label>Current Balance</Label>
-                                  <p className="text-lg font-semibold">{formatCurrency(Number(account.balance))}</p>
-                                </div>
-                                <div>
-                                  <Label htmlFor="new-balance">New Balance</Label>
-                                  <Input
-                                    id="new-balance"
-                                    type="number"
-                                    step="0.01"
-                                    value={editForm.balance}
-                                    onChange={(e) => setEditForm({ ...editForm, balance: e.target.value })}
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="admin-notes">Admin Notes</Label>
-                                  <Textarea
-                                    id="admin-notes"
-                                    placeholder="Reason for balance adjustment..."
-                                    value={editForm.notes}
-                                    onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                                  />
-                                </div>
-                                <Button
-                                  onClick={() => handleUpdateBalance(
-                                    account.id, 
-                                    parseFloat(editForm.balance), 
-                                    editForm.notes
-                                  )}
-                                  className="w-full"
-                                >
-                                  Update Balance
-                                </Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
+                        <div className="text-right">
+                          <p className="text-lg font-bold">{formatCurrency(account.balance)}</p>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => {
+                              setSelectedAccount(account);
+                              setEditForm({
+                                accountId: account.id,
+                                newBalance: account.balance.toString(),
+                                notes: ''
+                              });
+                            }}
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit Balance
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -506,46 +453,28 @@ const EnhancedAdminDashboard = () => {
                 <CardDescription>Complete transaction history</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4 max-h-96 overflow-y-auto">
+                <div className="space-y-4">
                   {transactions.map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className={`p-2 rounded-full ${
-                          transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' 
-                            ? 'bg-success/10' 
-                            : 'bg-destructive/10'
-                        }`}>
-                          {transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' ? (
-                            <ArrowUpRight className="w-4 h-4 text-success" />
-                          ) : (
-                            <ArrowDownLeft className="w-4 h-4 text-destructive" />
-                          )}
-                        </div>
+                    <div key={transaction.id} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">{transaction.description}</p>
                           <p className="text-sm text-muted-foreground">
-                            {transaction.user_name || transaction.user_email} - {transaction.account_number}
+                            {transaction.user_name} ({transaction.user_email})
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {formatDate(transaction.created_at)}
                           </p>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`font-semibold ${
-                          transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' 
-                            ? 'text-success' 
-                            : 'text-destructive'
-                        }`}>
-                          {transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' ? '+' : '-'}
-                          {formatCurrency(transaction.amount)}
-                        </p>
-                        <Badge variant={
-                          transaction.status === 'completed' ? 'default' : 
-                          transaction.status === 'pending' ? 'secondary' : 'destructive'
-                        }>
-                          {transaction.status}
-                        </Badge>
+                        <div className="text-right">
+                          <p className="text-lg font-bold">{formatCurrency(transaction.amount)}</p>
+                          <Badge variant={
+                            transaction.status === 'completed' ? 'default' :
+                            transaction.status === 'pending' ? 'secondary' : 'destructive'
+                          }>
+                            {transaction.status}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -554,6 +483,127 @@ const EnhancedAdminDashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Edit Balance Dialog */}
+        <Dialog open={selectedAccount !== null} onOpenChange={() => setSelectedAccount(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Account Balance</DialogTitle>
+            </DialogHeader>
+            {selectedAccount && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="balance">New Balance</Label>
+                  <Input
+                    id="balance"
+                    type="number"
+                    step="0.01"
+                    value={editForm.newBalance}
+                    onChange={(e) => setEditForm({...editForm, newBalance: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="notes">Admin Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={editForm.notes}
+                    onChange={(e) => setEditForm({...editForm, notes: e.target.value})}
+                    placeholder="Reason for balance adjustment..."
+                  />
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setSelectedAccount(null)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateBalance}>
+                Update Balance
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create User Dialog */}
+        <Dialog open={showCreateUser} onOpenChange={setShowCreateUser}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create New User</DialogTitle>
+              <DialogDescription>
+                Create a new user account with initial balance and role.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={createUserForm.email}
+                  onChange={(e) => setCreateUserForm({...createUserForm, email: e.target.value})}
+                  placeholder="user@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={createUserForm.password}
+                  onChange={(e) => setCreateUserForm({...createUserForm, password: e.target.value})}
+                  placeholder="Enter password"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={createUserForm.fullName}
+                  onChange={(e) => setCreateUserForm({...createUserForm, fullName: e.target.value})}
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="initialBalance">Initial Balance ($)</Label>
+                <Input
+                  id="initialBalance"
+                  type="number"
+                  value={createUserForm.initialBalance}
+                  onChange={(e) => setCreateUserForm({...createUserForm, initialBalance: parseFloat(e.target.value) || 0})}
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div>
+                <Label htmlFor="role">Role</Label>
+                <Select 
+                  value={createUserForm.role} 
+                  onValueChange={(value) => setCreateUserForm({...createUserForm, role: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCreateUser(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateUser}>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Create User
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
