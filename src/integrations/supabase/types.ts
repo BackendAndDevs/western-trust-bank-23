@@ -256,11 +256,94 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_get_all_accounts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          account_number: string
+          account_type: string
+          balance: number
+          created_at: string
+          currency: string
+          id: string
+          is_primary: boolean
+          updated_at: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      admin_get_all_loans: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          admin_notes: string
+          amount: number
+          annual_income: number
+          created_at: string
+          credit_score: number
+          employment_status: string
+          id: string
+          loan_type: string
+          purpose: string
+          reviewed_at: string
+          reviewed_by: string
+          status: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      admin_get_all_transactions: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          account_id: string
+          account_number: string
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          recipient_account_id: string
+          recipient_info: Json
+          status: string
+          transaction_type: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      admin_process_transaction: {
+        Args: {
+          admin_notes?: string
+          new_status: string
+          transaction_id: string
+        }
+        Returns: undefined
+      }
       admin_review_loan: {
         Args: { admin_notes?: string; loan_id: string; new_status: string }
         Returns: undefined
@@ -280,6 +363,10 @@ export type Database = {
       generate_card_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      has_role: {
+        Args: { _role: string; _user_id: string }
+        Returns: boolean
       }
     }
     Enums: {

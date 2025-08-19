@@ -20,6 +20,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import Navigation from "@/components/Navigation";
 
 const Bills = () => {
   const { user } = useAuth();
@@ -141,6 +142,9 @@ const Bills = () => {
               </Link>
             </div>
             <h1 className="text-lg font-semibold">Bill Payments</h1>
+            <div className="flex items-center space-x-4">
+              <Navigation />
+            </div>
           </div>
         </div>
       </header>

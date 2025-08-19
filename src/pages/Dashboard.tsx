@@ -28,6 +28,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
+import Navigation from "@/components/Navigation";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -210,6 +211,7 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              <Navigation />
               <span className="text-sm text-muted-foreground">
                 Welcome, {user?.user_metadata?.full_name || user?.email}
               </span>

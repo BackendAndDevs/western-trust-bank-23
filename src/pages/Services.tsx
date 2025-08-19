@@ -14,13 +14,17 @@ import {
   ArrowLeft,
   Clock,
   CheckCircle,
-  XCircle
+  XCircle,
+  Star,
+  Crown,
+  Gem
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import Navigation from "@/components/Navigation";
 
 interface ServiceRequest {
   id: string;
@@ -75,6 +79,27 @@ const Services = () => {
       icon: Shield, 
       color: "text-orange-600",
       description: "Protect your assets with our insurance products"
+    },
+    { 
+      id: "vip_banking", 
+      name: "VIP Banking", 
+      icon: Crown, 
+      color: "text-yellow-600",
+      description: "Exclusive celebrity and high-net-worth banking services"
+    },
+    { 
+      id: "premium_loan", 
+      name: "Premium Loans", 
+      icon: Gem, 
+      color: "text-pink-600",
+      description: "High-value loans for luxury purchases and investments"
+    },
+    { 
+      id: "celebrity_services", 
+      name: "Celebrity Services", 
+      icon: Star, 
+      color: "text-indigo-600",
+      description: "Specialized financial services for public figures and celebrities"
     }
   ];
 
@@ -154,6 +179,20 @@ const Services = () => {
       } else if (selectedService === 'insurance') {
         insertData.purpose = requestForm.purpose || 'Insurance Application';
         insertData.amount = parseFloat(requestForm.amount) || 0;
+      } else if (selectedService === 'vip_banking') {
+        insertData.purpose = requestForm.purpose || 'VIP Banking Services';
+        insertData.amount = parseFloat(requestForm.amount) || 250000; // Minimum VIP deposit
+        insertData.annual_income = parseFloat(requestForm.annualIncome) || null;
+      } else if (selectedService === 'premium_loan') {
+        insertData.purpose = requestForm.purpose || 'Premium Loan Application';
+        insertData.amount = parseFloat(requestForm.amount) || 100000; // High-value loan
+        insertData.annual_income = parseFloat(requestForm.annualIncome) || null;
+        insertData.credit_score = parseInt(requestForm.creditScore) || null;
+        insertData.employment_status = requestForm.employmentStatus || null;
+      } else if (selectedService === 'celebrity_services') {
+        insertData.purpose = requestForm.purpose || 'Celebrity Banking Services';
+        insertData.amount = parseFloat(requestForm.amount) || 500000; // Celebrity package
+        insertData.annual_income = parseFloat(requestForm.annualIncome) || null;
       }
 
       const { error } = await supabase
@@ -226,6 +265,9 @@ const Services = () => {
               </Link>
             </div>
             <h1 className="text-lg font-semibold">Service Requests</h1>
+            <div className="flex items-center space-x-4">
+              <Navigation />
+            </div>
           </div>
         </div>
       </header>
@@ -275,19 +317,29 @@ const Services = () => {
                       </h3>
                     </div>
 
-                    {(selectedService === 'credit_card' || selectedService === 'investment') && (
+                    {(selectedService === 'credit_card' || selectedService === 'investment' || selectedService === 'vip_banking' || selectedService === 'premium_loan' || selectedService === 'celebrity_services') && (
                       <div>
                         <Label htmlFor="amount">Requested Amount/Limit</Label>
                         <Input
                           id="amount"
                           type="number"
-                          placeholder="Enter amount"
+                          placeholder={
+                            selectedService === 'vip_banking' ? 'Minimum $250,000' :
+                            selectedService === 'premium_loan' ? 'Minimum $100,000' :
+                            selectedService === 'celebrity_services' ? 'Package value' :
+                            'Enter amount'
+                          }
                           value={requestForm.amount}
                           onChange={(e) => setRequestForm({
                             ...requestForm,
                             amount: e.target.value
                           })}
-                          min="1"
+                          min={
+                            selectedService === 'vip_banking' ? '250000' :
+                            selectedService === 'premium_loan' ? '100000' :
+                            selectedService === 'celebrity_services' ? '500000' :
+                            '1'
+                          }
                         />
                       </div>
                     )}
@@ -309,12 +361,17 @@ const Services = () => {
                       </div>
                     )}
 
-                    {(selectedService === 'investment' || selectedService === 'insurance') && (
+                    {(selectedService === 'investment' || selectedService === 'insurance' || selectedService === 'vip_banking' || selectedService === 'premium_loan' || selectedService === 'celebrity_services') && (
                       <div>
                         <Label htmlFor="purpose">Purpose/Goal</Label>
                         <Input
                           id="purpose"
-                          placeholder="Describe your needs"
+                          placeholder={
+                            selectedService === 'vip_banking' ? 'VIP banking needs' :
+                            selectedService === 'celebrity_services' ? 'Celebrity service requirements' :
+                            selectedService === 'premium_loan' ? 'Loan purpose (luxury purchase, investment, etc.)' :
+                            'Describe your needs'
+                          }
                           value={requestForm.purpose}
                           onChange={(e) => setRequestForm({
                             ...requestForm,
@@ -324,36 +381,45 @@ const Services = () => {
                       </div>
                     )}
 
-                    {(selectedService === 'credit_card' || selectedService === 'investment') && (
+                    {(selectedService === 'credit_card' || selectedService === 'investment' || selectedService === 'vip_banking' || selectedService === 'premium_loan' || selectedService === 'celebrity_services') && (
                       <>
                         <div>
                           <Label htmlFor="annual-income">Annual Income</Label>
                           <Input
                             id="annual-income"
                             type="number"
-                            placeholder="Your annual income"
+                            placeholder={
+                              selectedService === 'vip_banking' || selectedService === 'celebrity_services' ? 'Minimum $1,000,000' :
+                              selectedService === 'premium_loan' ? 'Minimum $500,000' :
+                              'Your annual income'
+                            }
                             value={requestForm.annualIncome}
                             onChange={(e) => setRequestForm({
                               ...requestForm,
                               annualIncome: e.target.value
                             })}
+                            min={
+                              selectedService === 'vip_banking' || selectedService === 'celebrity_services' ? '1000000' :
+                              selectedService === 'premium_loan' ? '500000' :
+                              '0'
+                            }
                           />
                         </div>
 
-                        {selectedService === 'credit_card' && (
+                        {(selectedService === 'credit_card' || selectedService === 'premium_loan') && (
                           <>
                             <div>
-                              <Label htmlFor="credit-score">Credit Score (Optional)</Label>
+                              <Label htmlFor="credit-score">Credit Score {selectedService === 'premium_loan' ? '(Required)' : '(Optional)'}</Label>
                               <Input
                                 id="credit-score"
                                 type="number"
-                                placeholder="300-850"
+                                placeholder={selectedService === 'premium_loan' ? 'Minimum 750' : '300-850'}
                                 value={requestForm.creditScore}
                                 onChange={(e) => setRequestForm({
                                   ...requestForm,
                                   creditScore: e.target.value
                                 })}
-                                min="300"
+                                min={selectedService === 'premium_loan' ? '750' : '300'}
                                 max="850"
                               />
                             </div>
@@ -374,9 +440,10 @@ const Services = () => {
                                   <SelectItem value="full-time">Full-time</SelectItem>
                                   <SelectItem value="part-time">Part-time</SelectItem>
                                   <SelectItem value="self-employed">Self-employed</SelectItem>
-                                  <SelectItem value="unemployed">Unemployed</SelectItem>
+                                  <SelectItem value="business-owner">Business Owner</SelectItem>
+                                  <SelectItem value="celebrity">Celebrity/Public Figure</SelectItem>
+                                  <SelectItem value="investor">Professional Investor</SelectItem>
                                   <SelectItem value="retired">Retired</SelectItem>
-                                  <SelectItem value="student">Student</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
