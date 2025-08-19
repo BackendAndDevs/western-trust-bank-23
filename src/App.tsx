@@ -13,6 +13,9 @@ import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import Transfer from "./pages/Transfer";
 import Profile from "./pages/Profile";
+import Bills from "./pages/Bills";
+import Services from "./pages/Services";
+import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +60,17 @@ const App = () => (
                 <Profile />
               </ProtectedRoute>
             } />
+            <Route path="/bills" element={
+              <ProtectedRoute>
+                <Bills />
+              </ProtectedRoute>
+            } />
+            <Route path="/services" element={
+              <ProtectedRoute>
+                <Services />
+              </ProtectedRoute>
+            } />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

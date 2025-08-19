@@ -82,8 +82,8 @@ const Dashboard = () => {
       });
     } else {
       toast({
-        title: "Deposit Successful",
-        description: `$${depositAmount} has been deposited to your account.`,
+        title: "Deposit Submitted",
+        description: `$${depositAmount} deposit submitted for admin approval.`,
       });
       setDepositAmount("");
     }
@@ -102,8 +102,8 @@ const Dashboard = () => {
       });
     } else {
       toast({
-        title: "Withdrawal Successful",
-        description: `$${withdrawAmount} has been withdrawn from your account.`,
+        title: "Withdrawal Submitted", 
+        description: `$${withdrawAmount} withdrawal submitted for admin approval.`,
       });
       setWithdrawAmount("");
     }
@@ -122,8 +122,8 @@ const Dashboard = () => {
       });
     } else {
       toast({
-        title: "Transfer Successful",
-        description: `$${transferForm.amount} has been transferred successfully.`,
+        title: "Transfer Submitted",
+        description: `$${transferForm.amount} transfer submitted for admin approval.`,
       });
       setTransferForm({ recipient: "", amount: "", memo: "" });
     }
@@ -270,7 +270,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
           <Link to="/deposit">
             <Button className="w-full h-16" variant="outline">
               <Plus className="w-6 h-6 mr-2" />
@@ -287,6 +287,18 @@ const Dashboard = () => {
             <Button className="w-full h-16" variant="outline">
               <ArrowLeftRight className="w-6 h-6 mr-2" />
               Transfer
+            </Button>
+          </Link>
+          <Link to="/bills">
+            <Button className="w-full h-16" variant="outline">
+              <FileText className="w-6 h-6 mr-2" />
+              Bills
+            </Button>
+          </Link>
+          <Link to="/services">
+            <Button className="w-full h-16" variant="outline">
+              <CreditCard className="w-6 h-6 mr-2" />
+              Services
             </Button>
           </Link>
           <Link to="/profile">
@@ -311,7 +323,7 @@ const Dashboard = () => {
               <CardHeader>
                 <CardTitle>Recent Transactions</CardTitle>
                 <CardDescription>
-                  Your latest account activity
+                  Your latest account activity (pending transactions require admin approval)
                 </CardDescription>
               </CardHeader>
               <CardContent>

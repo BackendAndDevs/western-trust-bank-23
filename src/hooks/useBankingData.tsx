@@ -124,15 +124,7 @@ export const useBankingData = () => {
     if (!account) return { error: 'No account found' };
 
     try {
-      // Update account balance
-      const { error: updateError } = await supabase
-        .from('accounts')
-        .update({ balance: account.balance + amount })
-        .eq('id', account.id);
-
-      if (updateError) throw updateError;
-
-      // Create transaction record
+      // Create pending transaction record (don't update balance yet)
       const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
@@ -141,7 +133,7 @@ export const useBankingData = () => {
           transaction_type: 'deposit',
           amount,
           description: `Deposit of $${amount}`,
-          status: 'completed'
+          status: 'pending'
         });
 
       if (transactionError) throw transactionError;
@@ -163,15 +155,7 @@ export const useBankingData = () => {
     if (account.balance < amount) return { error: 'Insufficient funds' };
 
     try {
-      // Update account balance
-      const { error: updateError } = await supabase
-        .from('accounts')
-        .update({ balance: account.balance - amount })
-        .eq('id', account.id);
-
-      if (updateError) throw updateError;
-
-      // Create transaction record
+      // Create pending transaction record (don't update balance yet)
       const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
@@ -180,7 +164,7 @@ export const useBankingData = () => {
           transaction_type: 'withdraw',
           amount,
           description: `Withdrawal of $${amount}`,
-          status: 'completed'
+          status: 'pending'
         });
 
       if (transactionError) throw transactionError;
@@ -217,23 +201,7 @@ export const useBankingData = () => {
         return { error: 'Cannot transfer to your own account' };
       }
 
-      // Update sender balance
-      const { error: senderUpdateError } = await supabase
-        .from('accounts')
-        .update({ balance: senderAccount.balance - amount })
-        .eq('id', senderAccount.id);
-
-      if (senderUpdateError) throw senderUpdateError;
-
-      // Update recipient balance
-      const { error: recipientUpdateError } = await supabase
-        .from('accounts')
-        .update({ balance: recipientAccount.balance + amount })
-        .eq('id', recipientAccount.id);
-
-      if (recipientUpdateError) throw recipientUpdateError;
-
-      // Create sender transaction
+      // Create pending sender transaction (don't update balances yet)
       const { error: senderTransactionError } = await supabase
         .from('transactions')
         .insert({
@@ -242,26 +210,11 @@ export const useBankingData = () => {
           transaction_type: 'transfer_sent',
           amount,
           description: memo || `Transfer to ${recipientAccountNumber}`,
-          status: 'completed',
+          status: 'pending',
           recipient_account_id: recipientAccount.id
         });
 
       if (senderTransactionError) throw senderTransactionError;
-
-      // Create recipient transaction
-      const { error: recipientTransactionError } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: recipientAccount.user_id,
-          account_id: recipientAccount.id,
-          transaction_type: 'transfer_received',
-          amount,
-          description: memo || `Transfer from ${senderAccount.account_number}`,
-          status: 'completed',
-          recipient_account_id: senderAccount.id
-        });
-
-      if (recipientTransactionError) throw recipientTransactionError;
 
       // Refresh data
       await fetchData();
