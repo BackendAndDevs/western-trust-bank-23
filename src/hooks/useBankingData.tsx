@@ -101,11 +101,20 @@ export const useBankingData = () => {
           console.error('Error creating profile:', profileError);
         }
 
+        // Generate account number using database function
+        const { data: accountNumber, error: accountNumberError } = await supabase
+          .rpc('generate_account_number');
+
+        if (accountNumberError) {
+          console.error('Error generating account number:', accountNumberError);
+          return;
+        }
+
         const { error: insertError } = await supabase
           .from('accounts')
           .insert({
             user_id: user.id,
-            account_number: `WTB${Math.floor(Math.random() * 10000000).toString().padStart(7, '0')}`,
+            account_number: accountNumber,
             account_type: 'checking',
             balance: 1000.00, // Initial balance
             is_primary: true,
@@ -133,6 +142,7 @@ export const useBankingData = () => {
     if (error) {
       console.error('Error fetching accounts:', error);
     } else {
+      console.log('Fetched accounts:', data); // Debug log
       setAccounts(data || []);
     }
   };
