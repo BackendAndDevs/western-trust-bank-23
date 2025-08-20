@@ -1,27 +1,45 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Building2, Users, DollarSign, Clock, TrendingUp, Shield, LogOut, Eye, Check, X, Edit, UserPlus } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useAdminData } from "@/hooks/useAdminData";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useAdminData, AdminUser } from '@/hooks/useAdminData';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Users, 
+  DollarSign, 
+  Clock, 
+  CheckCircle, 
+  XCircle, 
+  Edit,
+  UserPlus,
+  Trash2,
+  TrendingUp,
+  AlertCircle,
+  Building2,
+  Shield,
+  LogOut,
+  Check,
+  X
+} from 'lucide-react';
 
 const EnhancedAdminDashboard = () => {
-  const { user, signOut } = useAuth();
+  const { signOut } = useAuth();
   const { 
     accounts, 
     transactions, 
     loans, 
+    users,
     pendingTransactions, 
     pendingLoans,
     totalBalance,
@@ -30,6 +48,8 @@ const EnhancedAdminDashboard = () => {
     processTransaction,
     reviewLoan,
     updateAccountBalance,
+    createUser,
+    deleteUser,
     refetchData
   } = useAdminData();
   const navigate = useNavigate();
@@ -121,43 +141,49 @@ const EnhancedAdminDashboard = () => {
   const handleCreateUser = async () => {
     if (!createUserForm.email || !createUserForm.password || !createUserForm.fullName) return;
 
-    try {
-      const { data, error } = await supabase.rpc('admin_create_user', {
-        email: createUserForm.email,
-        password: createUserForm.password,
-        full_name: createUserForm.fullName,
-        initial_balance: createUserForm.initialBalance,
-        user_role: createUserForm.role
-      });
+    const result = await createUser(
+      createUserForm.email,
+      createUserForm.password,
+      createUserForm.fullName,
+      createUserForm.initialBalance,
+      createUserForm.role
+    );
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to create user: " + error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: `User ${createUserForm.fullName} created successfully!`,
-        });
-        setCreateUserForm({
-          email: '',
-          password: '',
-          fullName: '',
-          initialBalance: 1000,
-          role: 'user'
-        });
-        setShowCreateUser(false);
-        // Refresh data
-        refetchData();
-      }
-    } catch (error) {
-      console.error('Error creating user:', error);
+    if (result?.error) {
       toast({
         title: "Error",
-        description: "Failed to create user.",
+        description: "Failed to create user: " + result.error.message,
         variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: `User ${createUserForm.fullName} created successfully!`,
+      });
+      setCreateUserForm({
+        email: '',
+        password: '',
+        fullName: '',
+        initialBalance: 1000,
+        role: 'user'
+      });
+      setShowCreateUser(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    const result = await deleteUser(userId);
+
+    if (result?.error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete user: " + result.error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "User deleted successfully!",
       });
     }
   };
@@ -286,13 +312,78 @@ const EnhancedAdminDashboard = () => {
         )}
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="pending-transactions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="pending-transactions">Pending Transactions</TabsTrigger>
-            <TabsTrigger value="pending-loans">Pending Loans</TabsTrigger>
-            <TabsTrigger value="accounts">User Accounts</TabsTrigger>
-            <TabsTrigger value="all-transactions">All Transactions</TabsTrigger>
-          </TabsList>
+        <Tabs defaultValue="users" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="users">Users</TabsTrigger>
+              <TabsTrigger value="pending-transactions">Pending Transactions</TabsTrigger>
+              <TabsTrigger value="pending-loans">Pending Loans</TabsTrigger>
+              <TabsTrigger value="accounts">User Accounts</TabsTrigger>
+              <TabsTrigger value="all-transactions">All Transactions</TabsTrigger>
+            </TabsList>
+
+          <TabsContent value="users">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Management</CardTitle>
+                <CardDescription>Manage all users in the system</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Full Name</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Total Balance</TableHead>
+                      <TableHead>Accounts</TableHead>
+                      <TableHead>Created At</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.user_id}>
+                        <TableCell className="font-medium">{user.email}</TableCell>
+                        <TableCell>{user.full_name}</TableCell>
+                        <TableCell>
+                          <Badge variant={user.account_status === 'active' ? 'default' : 'secondary'}>
+                            {user.account_status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{formatCurrency(user.total_balance)}</TableCell>
+                        <TableCell>{user.account_count}</TableCell>
+                        <TableCell>{formatDate(user.created_at)}</TableCell>
+                        <TableCell>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete the user
+                                  and all associated accounts, transactions, and data.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteUser(user.user_id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="pending-transactions">
             <Card>

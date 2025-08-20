@@ -50,11 +50,22 @@ export interface AdminLoan {
   user_name: string;
 }
 
+export interface AdminUser {
+  user_id: string;
+  email: string;
+  full_name: string;
+  account_status: string;
+  created_at: string;
+  total_balance: number;
+  account_count: number;
+}
+
 export const useAdminData = () => {
   const { user } = useAuth();
   const [accounts, setAccounts] = useState<AdminAccount[]>([]);
   const [transactions, setTransactions] = useState<AdminTransaction[]>([]);
   const [loans, setLoans] = useState<AdminLoan[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,6 +75,7 @@ export const useAdminData = () => {
       setAccounts([]);
       setTransactions([]);
       setLoans([]);
+      setUsers([]);
       setLoading(false);
     }
   }, [user]);
@@ -76,7 +88,8 @@ export const useAdminData = () => {
       await Promise.all([
         fetchAccounts(),
         fetchTransactions(),
-        fetchLoans()
+        fetchLoans(),
+        fetchUsers()
       ]);
     } catch (error) {
       console.error('Error fetching admin data:', error);
@@ -175,6 +188,22 @@ export const useAdminData = () => {
     }
   };
 
+  const fetchUsers = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase.rpc('admin_get_all_users');
+      
+      if (error) {
+        console.error('Error fetching admin users:', error);
+      } else {
+        setUsers(data || []);
+      }
+    } catch (error) {
+      console.error('Error calling admin_get_all_users:', error);
+    }
+  };
+
   const updateAccountBalance = async (accountId: string, newBalance: number, notes?: string) => {
     if (!user) return { error: 'User not authenticated' };
 
@@ -196,6 +225,48 @@ export const useAdminData = () => {
     }
   };
 
+  const createUser = async (email: string, password: string, fullName: string, initialBalance?: number, role?: string) => {
+    if (!user) return { error: 'User not authenticated' };
+
+    try {
+      const { error } = await supabase.rpc('admin_create_user', {
+        email,
+        password,
+        full_name: fullName,
+        initial_balance: initialBalance || 1000.00,
+        user_role: role || 'user'
+      });
+
+      if (error) throw error;
+
+      // Refresh data after creation
+      await fetchAllData();
+      return { error: null };
+    } catch (error) {
+      console.error('Error creating user:', error);
+      return { error };
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    if (!user) return { error: 'User not authenticated' };
+
+    try {
+      const { error } = await supabase.rpc('admin_delete_user', {
+        target_user_id: userId
+      });
+
+      if (error) throw error;
+
+      // Refresh data after deletion
+      await fetchAllData();
+      return { error: null };
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      return { error };
+    }
+  };
+
   // Computed values
   const pendingTransactions = transactions.filter(t => t.status === 'pending');
   const pendingLoans = loans.filter(l => l.status === 'pending');
@@ -206,6 +277,7 @@ export const useAdminData = () => {
     accounts,
     transactions,
     loans,
+    users,
     pendingTransactions,
     pendingLoans,
     totalBalance,
@@ -214,6 +286,8 @@ export const useAdminData = () => {
     processTransaction,
     reviewLoan,
     updateAccountBalance,
+    createUser,
+    deleteUser,
     refetchData: fetchAllData
   };
 };

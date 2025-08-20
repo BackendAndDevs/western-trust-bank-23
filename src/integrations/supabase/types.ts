@@ -292,6 +292,10 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_delete_user: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       admin_get_all_accounts: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -344,6 +348,18 @@ export type Database = {
           user_email: string
           user_id: string
           user_name: string
+        }[]
+      }
+      admin_get_all_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          account_count: number
+          account_status: string
+          created_at: string
+          email: string
+          full_name: string
+          total_balance: number
+          user_id: string
         }[]
       }
       admin_process_transaction: {
