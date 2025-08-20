@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
-interface USBank {
+export interface USBank {
   id: string;
   name: string;
   routing_number: string;
@@ -11,7 +11,7 @@ interface USBank {
   city: string | null;
 }
 
-interface ExternalTransfer {
+export interface ExternalTransfer {
   id: string;
   user_id: string;
   from_account_id: string;
