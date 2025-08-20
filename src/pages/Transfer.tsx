@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const Transfer = () => {
   const { user } = useAuth();
-  const { primaryAccount, transfer } = useBankingData();
+  const { primaryAccount, transfer, loading } = useBankingData();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
@@ -24,8 +24,6 @@ const Transfer = () => {
       navigate("/auth");
     }
   }, [user, navigate]);
-
-  if (!user || !primaryAccount) return null;
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,10 +58,27 @@ const Transfer = () => {
 
   // For demo purposes, show some example recipients
   const exampleRecipients = [
-    { name: "John Doe", username: "john_doe" },
-    { name: "Jane Smith", username: "jane_smith" },
-    { name: "Mike Johnson", username: "mike_j" }
+    { name: "John Doe", account: "WTB1234567" },
+    { name: "Jane Smith", account: "WTB2345678" },
+    { name: "Mike Johnson", account: "WTB3456789" }
   ];
+
+  if (!user) return null;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading your account...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,7 +96,7 @@ const Transfer = () => {
               <CreditCard className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-primary">Western Trust Bank</h1>
+              <h1 className="text-xl font-bold text-foreground">Western Trust Bank</h1>
               <p className="text-sm text-muted-foreground">Transfer Funds</p>
             </div>
           </div>
@@ -99,38 +114,38 @@ const Transfer = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{formatCurrency(primaryAccount.balance)}</div>
+              <div className="text-3xl font-bold text-primary">
+                {primaryAccount ? formatCurrency(primaryAccount.balance) : formatCurrency(0)}
+              </div>
               <p className="text-sm text-muted-foreground">Primary Checking Account</p>
             </CardContent>
           </Card>
 
           {/* Quick Recipients */}
-          {exampleRecipients.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Transfer</CardTitle>
-                <CardDescription>Select a recent contact</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {exampleRecipients.map((recipient) => (
-                    <Button
-                      key={recipient.username}
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => setRecipient(recipient.username)}
-                    >
-                      <Users className="w-4 h-4 mr-2" />
-                      <div className="text-left">
-                        <div className="font-medium">{recipient.name}</div>
-                        <div className="text-sm text-muted-foreground">@{recipient.username}</div>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Transfer</CardTitle>
+              <CardDescription>Select a demo account to transfer to</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {exampleRecipients.map((recipient) => (
+                  <Button
+                    key={recipient.account}
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() => setRecipient(recipient.account)}
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    <div className="text-left">
+                      <div className="font-medium">{recipient.name}</div>
+                      <div className="text-sm text-muted-foreground">{recipient.account}</div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Transfer Form */}
           <Card>
@@ -144,17 +159,17 @@ const Transfer = () => {
             <CardContent>
               <form onSubmit={handleTransfer} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="recipient">Recipient Username or Email</Label>
+                  <Label htmlFor="recipient">Recipient Account Number</Label>
                   <Input
                     id="recipient"
                     type="text"
-                    placeholder="Enter username or email address"
+                    placeholder="Enter account number (e.g., WTB1234567)"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
                     required
                   />
                   <p className="text-sm text-muted-foreground">
-                    Enter the recipient's username (e.g., john_doe) or email address
+                    Enter the recipient's account number (e.g., WTB1234567)
                   </p>
                 </div>
 
@@ -168,12 +183,12 @@ const Transfer = () => {
                     onChange={(e) => setAmount(e.target.value)}
                     min="0.01"
                     step="0.01"
-                    max={primaryAccount.balance}
+                    max={primaryAccount?.balance || 0}
                     required
                     className="text-lg"
                   />
                   <p className="text-sm text-muted-foreground">
-                    Available: {formatCurrency(primaryAccount.balance)}
+                    Available: {primaryAccount ? formatCurrency(primaryAccount.balance) : formatCurrency(0)}
                   </p>
                 </div>
 
@@ -205,7 +220,7 @@ const Transfer = () => {
                   type="submit" 
                   className="w-full" 
                   size="lg"
-                  disabled={!amount || !recipient || parseFloat(amount) > primaryAccount.balance}
+                  disabled={!primaryAccount || !amount || !recipient || parseFloat(amount) > (primaryAccount?.balance || 0)}
                 >
                   <Send className="w-4 h-4 mr-2" />
                   Send {amount ? formatCurrency(parseFloat(amount) || 0) : "Transfer"}

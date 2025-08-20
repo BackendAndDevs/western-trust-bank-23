@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const Deposit = () => {
   const { user } = useAuth();
-  const { primaryAccount, deposit } = useBankingData();
+  const { primaryAccount, deposit, loading } = useBankingData();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
@@ -23,8 +23,6 @@ const Deposit = () => {
       navigate("/auth");
     }
   }, [user, navigate]);
-
-  if (!user || !primaryAccount) return null;
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +53,23 @@ const Deposit = () => {
     }).format(amount);
   };
 
+  if (!user) return null;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading your account...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -71,7 +86,7 @@ const Deposit = () => {
               <CreditCard className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-primary">Western Trust Bank</h1>
+              <h1 className="text-xl font-bold text-foreground">Western Trust Bank</h1>
               <p className="text-sm text-muted-foreground">Deposit Funds</p>
             </div>
           </div>
@@ -89,7 +104,9 @@ const Deposit = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{formatCurrency(primaryAccount.balance)}</div>
+              <div className="text-3xl font-bold text-primary">
+                {primaryAccount ? formatCurrency(primaryAccount.balance) : formatCurrency(0)}
+              </div>
               <p className="text-sm text-muted-foreground">Primary Checking Account</p>
             </CardContent>
           </Card>
@@ -148,7 +165,7 @@ const Deposit = () => {
                   </ul>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg">
+                <Button type="submit" className="w-full" size="lg" disabled={!primaryAccount}>
                   <PiggyBank className="w-4 h-4 mr-2" />
                   Deposit {amount ? formatCurrency(parseFloat(amount) || 0) : "Funds"}
                 </Button>

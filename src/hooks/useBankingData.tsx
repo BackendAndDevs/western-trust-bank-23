@@ -87,6 +87,20 @@ export const useBankingData = () => {
       
       // If user has no accounts, create one
       if (!existingAccounts || existingAccounts.length === 0) {
+        // Create profile first if it doesn't exist
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            user_id: user.id,
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            account_type: 'personal',
+            account_status: 'active'
+          }, { onConflict: 'user_id' });
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+        }
+
         const { error: insertError } = await supabase
           .from('accounts')
           .insert({

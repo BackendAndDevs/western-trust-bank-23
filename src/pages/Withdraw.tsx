@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const Withdraw = () => {
   const { user } = useAuth();
-  const { primaryAccount, withdraw } = useBankingData();
+  const { primaryAccount, withdraw, loading } = useBankingData();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
@@ -23,8 +23,6 @@ const Withdraw = () => {
       navigate("/auth");
     }
   }, [user, navigate]);
-
-  if (!user || !primaryAccount) return null;
 
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +55,23 @@ const Withdraw = () => {
 
   const suggestedAmounts = [20, 40, 60, 80, 100, 200];
 
+  if (!user) return null;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading your account...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -73,7 +88,7 @@ const Withdraw = () => {
               <CreditCard className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-primary">Western Trust Bank</h1>
+              <h1 className="text-xl font-bold text-foreground">Western Trust Bank</h1>
               <p className="text-sm text-muted-foreground">Withdraw Funds</p>
             </div>
           </div>
@@ -91,33 +106,37 @@ const Withdraw = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{formatCurrency(primaryAccount.balance)}</div>
+              <div className="text-3xl font-bold text-primary">
+                {primaryAccount ? formatCurrency(primaryAccount.balance) : formatCurrency(0)}
+              </div>
               <p className="text-sm text-muted-foreground">Primary Checking Account</p>
             </CardContent>
           </Card>
 
           {/* Quick Amount Selection */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Withdrawal</CardTitle>
-              <CardDescription>Select a common amount</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-3">
-                {suggestedAmounts.map((suggestedAmount) => (
-                  <Button
-                    key={suggestedAmount}
-                    variant="outline"
-                    onClick={() => setAmount(suggestedAmount.toString())}
-                    disabled={suggestedAmount > primaryAccount.balance}
-                    className="text-center"
-                  >
-                    {formatCurrency(suggestedAmount)}
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {primaryAccount && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Withdrawal</CardTitle>
+                <CardDescription>Select a common amount</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-3">
+                  {suggestedAmounts.map((suggestedAmount) => (
+                    <Button
+                      key={suggestedAmount}
+                      variant="outline"
+                      onClick={() => setAmount(suggestedAmount.toString())}
+                      disabled={suggestedAmount > primaryAccount.balance}
+                      className="text-center"
+                    >
+                      {formatCurrency(suggestedAmount)}
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Withdrawal Form */}
           <Card>
@@ -155,12 +174,12 @@ const Withdraw = () => {
                     onChange={(e) => setAmount(e.target.value)}
                     min="0.01"
                     step="0.01"
-                    max={primaryAccount.balance}
+                    max={primaryAccount?.balance || 0}
                     required
                     className="text-lg"
                   />
                   <p className="text-sm text-muted-foreground">
-                    Available: {formatCurrency(primaryAccount.balance)}
+                    Available: {primaryAccount ? formatCurrency(primaryAccount.balance) : formatCurrency(0)}
                   </p>
                 </div>
 
@@ -178,7 +197,7 @@ const Withdraw = () => {
                   type="submit" 
                   className="w-full" 
                   size="lg"
-                  disabled={!amount || parseFloat(amount) > primaryAccount.balance}
+                  disabled={!primaryAccount || !amount || parseFloat(amount) > (primaryAccount?.balance || 0)}
                 >
                   <Banknote className="w-4 h-4 mr-2" />
                   Withdraw {amount ? formatCurrency(parseFloat(amount) || 0) : "Funds"}
