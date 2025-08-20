@@ -221,7 +221,7 @@ const Transfer = () => {
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• <strong>Internal transfers:</strong> Processed within 1 business day</li>
                     <li>• <strong>Transfer fees:</strong> $0 for Western Trust Bank accounts</li>
-                    <li>• <strong>Daily limit:</strong> $5,000 per account</li>
+                    <li>• <strong>Daily limit:</strong> $200,000 per account</li>
                     <li>• <strong>Security:</strong> All transfers require admin approval</li>
                     <li>• Both parties will receive email confirmation</li>
                     <li>• Transfer history is available in your dashboard</li>

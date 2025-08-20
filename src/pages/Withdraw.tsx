@@ -195,7 +195,7 @@ const Withdraw = () => {
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <h3 className="font-medium mb-2">⚠️ Withdrawal Limits & Information</h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• <strong>ATM daily limit:</strong> $500 per day</li>
+                    <li>• <strong>ATM daily limit:</strong> $200,000 per day</li>
                     <li>• <strong>Branch withdrawals:</strong> No daily limit with ID</li>
                     <li>• <strong>Check requests:</strong> Processed within 3-5 business days</li>
                     <li>• <strong>Bank transfers:</strong> Same day processing available</li>
