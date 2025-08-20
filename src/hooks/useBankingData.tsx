@@ -107,7 +107,7 @@ export const useBankingData = () => {
             user_id: user.id,
             account_number: `WTB${Math.floor(Math.random() * 10000000).toString().padStart(7, '0')}`,
             account_type: 'checking',
-            balance: 1000.00, // Demo balance
+            balance: 1000.00, // Initial balance
             is_primary: true,
             currency: 'USD'
           });

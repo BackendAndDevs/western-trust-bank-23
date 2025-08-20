@@ -158,7 +158,7 @@ const Deposit = () => {
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <h3 className="font-medium mb-2">Deposit Information</h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Deposits are processed immediately for demonstration</li>
+                    <li>• Deposits are processed immediately</li>
                     <li>• Mobile check deposits may take 1-2 business days in real banking</li>
                     <li>• Wire transfers typically clear within 24 hours</li>
                     <li>• ATM deposits are available immediately up to $200</li>

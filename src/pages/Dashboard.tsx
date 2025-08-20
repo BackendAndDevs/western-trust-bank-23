@@ -22,7 +22,8 @@ import {
   Plus,
   Minus,
   ArrowLeftRight,
-  FileText
+  FileText,
+  Building2
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -292,16 +293,16 @@ const Dashboard = () => {
               <span className="text-xs sm:text-sm">Transfer</span>
             </Button>
           </Link>
+          <Link to="/external-transfer" className="block">
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+              <Building2 className="w-4 h-4 sm:w-6 sm:h-6" />
+              <span className="text-xs sm:text-sm">External</span>
+            </Button>
+          </Link>
           <Link to="/bills" className="block">
             <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
               <FileText className="w-4 h-4 sm:w-6 sm:h-6" />
               <span className="text-xs sm:text-sm">Bills</span>
-            </Button>
-          </Link>
-          <Link to="/services" className="block">
-            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
-              <CreditCard className="w-4 h-4 sm:w-6 sm:h-6" />
-              <span className="text-xs sm:text-sm">Services</span>
             </Button>
           </Link>
           <Link to="/profile" className="block">

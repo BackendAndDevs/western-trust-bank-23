@@ -189,7 +189,7 @@ const Withdraw = () => {
                     <li>• ATM daily limit: $500</li>
                     <li>• Branch withdrawals: No daily limit</li>
                     <li>• Check requests processed within 3-5 business days</li>
-                    <li>• All withdrawals are processed immediately in this demo</li>
+                    <li>• All withdrawals are processed immediately</li>
                   </ul>
                 </div>
 

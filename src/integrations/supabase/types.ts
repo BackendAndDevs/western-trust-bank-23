@@ -106,6 +106,78 @@ export type Database = {
           },
         ]
       }
+      external_transfers: {
+        Row: {
+          amount: number
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          fee_amount: number | null
+          from_account_id: string | null
+          id: string
+          processed_at: string | null
+          processing_time_hours: number | null
+          reference_number: string | null
+          status: string | null
+          to_account_holder_name: string
+          to_account_number: string
+          to_bank_id: string | null
+          transfer_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          fee_amount?: number | null
+          from_account_id?: string | null
+          id?: string
+          processed_at?: string | null
+          processing_time_hours?: number | null
+          reference_number?: string | null
+          status?: string | null
+          to_account_holder_name: string
+          to_account_number: string
+          to_bank_id?: string | null
+          transfer_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          fee_amount?: number | null
+          from_account_id?: string | null
+          id?: string
+          processed_at?: string | null
+          processing_time_hours?: number | null
+          reference_number?: string | null
+          status?: string | null
+          to_account_holder_name?: string
+          to_account_number?: string
+          to_bank_id?: string | null
+          transfer_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_transfers_from_account_id_fkey"
+            columns: ["from_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_transfers_to_bank_id_fkey"
+            columns: ["to_bank_id"]
+            isOneToOne: false
+            referencedRelation: "us_banks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loan_requests: {
         Row: {
           admin_notes: string | null
@@ -256,6 +328,42 @@ export type Database = {
           },
         ]
       }
+      us_banks: {
+        Row: {
+          active: boolean | null
+          bank_code: string | null
+          city: string | null
+          created_at: string | null
+          id: string
+          name: string
+          routing_number: string
+          state: string | null
+          swift_code: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          bank_code?: string | null
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          routing_number: string
+          state?: string | null
+          swift_code?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          bank_code?: string | null
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          routing_number?: string
+          state?: string | null
+          swift_code?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -393,6 +501,19 @@ export type Database = {
       has_role: {
         Args: { _role: string; _user_id: string }
         Returns: boolean
+      }
+      process_external_transfer: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_from_account_id: string
+          p_to_account_holder_name: string
+          p_to_account_number: string
+          p_to_bank_id: string
+          p_transfer_type: string
+          p_user_id: string
+        }
+        Returns: Json
       }
     }
     Enums: {

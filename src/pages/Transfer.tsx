@@ -56,7 +56,7 @@ const Transfer = () => {
     }).format(amount);
   };
 
-  // For demo purposes, show some example recipients
+  // Example recipients for quick transfer
   const exampleRecipients = [
     { name: "John Doe", account: "WTB1234567" },
     { name: "Jane Smith", account: "WTB2345678" },
@@ -125,7 +125,7 @@ const Transfer = () => {
           <Card>
             <CardHeader>
               <CardTitle>Quick Transfer</CardTitle>
-              <CardDescription>Select a demo account to transfer to</CardDescription>
+              <CardDescription>Select an account to transfer to</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">

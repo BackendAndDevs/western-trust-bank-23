@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import ExternalTransfer from "./pages/ExternalTransfer";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -53,6 +54,11 @@ const App = () => (
             <Route path="/transfer" element={
               <ProtectedRoute>
                 <Transfer />
+              </ProtectedRoute>
+            } />
+            <Route path="/external-transfer" element={
+              <ProtectedRoute>
+                <ExternalTransfer />
               </ProtectedRoute>
             } />
             <Route path="/profile" element={
