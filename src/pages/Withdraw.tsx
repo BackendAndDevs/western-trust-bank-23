@@ -32,15 +32,24 @@ const Withdraw = () => {
       if (!result.error) {
         setAmount("");
         toast({
-          title: "Withdrawal Successful",
-          description: `$${withdrawAmount.toFixed(2)} has been withdrawn from your account via ${method}.`,
+          title: "Withdrawal Request Submitted Successfully! ✅",
+          description: (
+            <div className="space-y-2">
+              <p><strong>Amount:</strong> ${withdrawAmount.toFixed(2)}</p>
+              <p><strong>Method:</strong> {method === 'atm' ? 'ATM Withdrawal' : method === 'branch' ? 'Branch Teller' : method === 'check' ? 'Request Check' : 'Bank Transfer'}</p>
+              <p className="text-sm opacity-80">Your withdrawal is being processed and will be reviewed by our team. You'll receive a notification once it's approved.</p>
+            </div>
+          ),
+          duration: 6000,
         });
-        navigate("/dashboard");
+        // Navigate back to dashboard after a short delay
+        setTimeout(() => navigate("/dashboard"), 2000);
       } else {
         toast({
-          title: "Withdrawal Failed",
-          description: result.error.message || "Insufficient funds or invalid amount.",
+          title: "Withdrawal Failed ❌",
+          description: result.error.message || "Insufficient funds or invalid amount. Please check your balance and try again.",
           variant: "destructive",
+          duration: 5000,
         });
       }
     }
@@ -184,12 +193,14 @@ const Withdraw = () => {
                 </div>
 
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-medium mb-2">Withdrawal Limits & Information</h3>
+                  <h3 className="font-medium mb-2">⚠️ Withdrawal Limits & Information</h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• ATM daily limit: $500</li>
-                    <li>• Branch withdrawals: No daily limit</li>
-                    <li>• Check requests processed within 3-5 business days</li>
-                    <li>• All withdrawals are processed immediately</li>
+                    <li>• <strong>ATM daily limit:</strong> $500 per day</li>
+                    <li>• <strong>Branch withdrawals:</strong> No daily limit with ID</li>
+                    <li>• <strong>Check requests:</strong> Processed within 3-5 business days</li>
+                    <li>• <strong>Bank transfers:</strong> Same day processing available</li>
+                    <li>• All withdrawals require admin approval for security</li>
+                    <li>• You'll receive confirmation once processed</li>
                   </ul>
                 </div>
 

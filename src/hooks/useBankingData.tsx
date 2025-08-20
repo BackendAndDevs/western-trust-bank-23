@@ -133,6 +133,8 @@ export const useBankingData = () => {
   const fetchAccounts = async () => {
     if (!user) return;
     
+    console.log('Fetching accounts for user:', user.id); // Debug log
+    
     const { data, error } = await supabase
       .from('accounts')
       .select('*')
@@ -324,6 +326,10 @@ export const useBankingData = () => {
   };
 
   const primaryAccount = accounts.find(a => a.is_primary) || accounts[0];
+
+  console.log('Current user:', user?.id); // Debug log
+  console.log('Accounts:', accounts); // Debug log  
+  console.log('Primary account:', primaryAccount); // Debug log
 
   return {
     accounts,

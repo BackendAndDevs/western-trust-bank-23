@@ -35,15 +35,25 @@ const Transfer = () => {
         setRecipient("");
         setMemo("");
         toast({
-          title: "Transfer Successful",
-          description: `$${transferAmount.toFixed(2)} has been transferred to ${recipient}.`,
+          title: "Transfer Request Submitted Successfully! 💸",
+          description: (
+            <div className="space-y-2">
+              <p><strong>Amount:</strong> ${transferAmount.toFixed(2)}</p>
+              <p><strong>To Account:</strong> {recipient}</p>
+              {memo && <p><strong>Memo:</strong> {memo}</p>}
+              <p className="text-sm opacity-80">Your transfer is being processed and will be reviewed by our team. Both parties will receive notifications once it's completed.</p>
+            </div>
+          ),
+          duration: 6000,
         });
-        navigate("/dashboard");
+        // Navigate back to dashboard after a short delay
+        setTimeout(() => navigate("/dashboard"), 2000);
       } else {
         toast({
-          title: "Transfer Failed",
-          description: result.error.message || "Insufficient funds, invalid recipient, or you cannot transfer to yourself.",
+          title: "Transfer Failed ❌",
+          description: result.error.message || "Unable to process transfer. Please verify the recipient account number and your available balance.",
           variant: "destructive",
+          duration: 5000,
         });
       }
     }
@@ -207,12 +217,14 @@ const Transfer = () => {
                 </div>
 
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-medium mb-2">Transfer Information</h3>
+                  <h3 className="font-medium mb-2">💳 Transfer Information</h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Transfers between Western Trust Bank accounts are instant</li>
-                    <li>• No fees for internal transfers</li>
-                    <li>• Both parties will receive confirmation notifications</li>
-                    <li>• Daily transfer limit: $5,000</li>
+                    <li>• <strong>Internal transfers:</strong> Processed within 1 business day</li>
+                    <li>• <strong>Transfer fees:</strong> $0 for Western Trust Bank accounts</li>
+                    <li>• <strong>Daily limit:</strong> $5,000 per account</li>
+                    <li>• <strong>Security:</strong> All transfers require admin approval</li>
+                    <li>• Both parties will receive email confirmation</li>
+                    <li>• Transfer history is available in your dashboard</li>
                   </ul>
                 </div>
 

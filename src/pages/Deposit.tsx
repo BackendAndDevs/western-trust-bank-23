@@ -32,15 +32,24 @@ const Deposit = () => {
       if (!result.error) {
         setAmount("");
         toast({
-          title: "Deposit Successful",
-          description: `$${depositAmount.toFixed(2)} has been deposited to your account via ${method}.`,
+          title: "Deposit Request Submitted Successfully! 🎉",
+          description: (
+            <div className="space-y-2">
+              <p><strong>Amount:</strong> ${depositAmount.toFixed(2)}</p>
+              <p><strong>Method:</strong> {method === 'check' ? 'Mobile Check Deposit' : method === 'transfer' ? 'Bank Transfer' : method === 'cash' ? 'ATM Cash Deposit' : 'Wire Transfer'}</p>
+              <p className="text-sm opacity-80">Your deposit is being processed and will be reviewed by our team. You'll receive a notification once it's approved.</p>
+            </div>
+          ),
+          duration: 6000,
         });
-        navigate("/dashboard");
+        // Navigate back to dashboard after a short delay to let user see the success message
+        setTimeout(() => navigate("/dashboard"), 2000);
       } else {
         toast({
-          title: "Deposit Failed",
-          description: "Please try again.",
+          title: "Deposit Failed ❌",
+          description: result.error.message || "Unable to process deposit. Please try again or contact support.",
           variant: "destructive",
+          duration: 5000,
         });
       }
     }
@@ -156,12 +165,14 @@ const Deposit = () => {
                 </div>
 
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-medium mb-2">Deposit Information</h3>
+                  <h3 className="font-medium mb-2">💡 Deposit Information</h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Deposits are processed immediately</li>
-                    <li>• Mobile check deposits may take 1-2 business days in real banking</li>
-                    <li>• Wire transfers typically clear within 24 hours</li>
-                    <li>• ATM deposits are available immediately up to $200</li>
+                    <li>• <strong>Mobile check deposits:</strong> 1-2 business days, $0 fee</li>
+                    <li>• <strong>Bank transfers:</strong> 1-3 business days, $0 fee</li>
+                    <li>• <strong>ATM cash deposits:</strong> Available immediately, $0 fee</li>
+                    <li>• <strong>Wire transfers:</strong> Same day processing, $15 fee</li>
+                    <li>• All deposits require admin approval for security</li>
+                    <li>• You'll receive an email notification once processed</li>
                   </ul>
                 </div>
 

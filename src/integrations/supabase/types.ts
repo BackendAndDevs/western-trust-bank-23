@@ -490,6 +490,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      debug_user_accounts: {
+        Args: { target_user_id?: string }
+        Returns: {
+          account_id: string
+          account_number: string
+          balance: number
+          debug_info: string
+          user_id: string
+        }[]
+      }
       generate_account_number: {
         Args: Record<PropertyKey, never>
         Returns: string
