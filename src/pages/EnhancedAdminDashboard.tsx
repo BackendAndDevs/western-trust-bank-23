@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAdminData, AdminUser } from '@/hooks/useAdminData';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -52,7 +51,6 @@ const EnhancedAdminDashboard = () => {
     deleteUser,
     refetchData
   } = useAdminData();
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -74,7 +72,6 @@ const EnhancedAdminDashboard = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
     toast({
       title: "Logged Out",
       description: "Admin session ended successfully.",
