@@ -21,7 +21,14 @@ const Home = () => {
             </div>
           </Link>
           
-          <div className="flex space-x-4">
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors font-medium">About</Link>
+            <Link to="/services" className="text-muted-foreground hover:text-primary transition-colors font-medium">Services</Link>
+            <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors font-medium">FAQ</Link>
+            <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors font-medium">Contact</Link>
+          </nav>
+          
+          <div className="flex items-center space-x-4">
             <Button asChild variant="outline" className="transition-all duration-300 hover:shadow-elegant">
               <Link to="/auth">Sign In</Link>
             </Button>
@@ -158,9 +165,9 @@ const Home = () => {
       {/* Footer */}
       <footer className="bg-card border-t py-8 sm:py-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-center sm:text-left">
             <div className="sm:col-span-2 lg:col-span-1">
-              <Link to="/" className="flex items-center space-x-2 mb-4 group w-fit">
+              <Link to="/" className="flex items-center space-x-2 mb-4 group w-fit mx-auto sm:mx-0">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-primary rounded-full flex items-center justify-center shadow-elegant transition-transform duration-300 group-hover:scale-110">
                   <span className="text-white font-bold text-xs">WTB</span>
                 </div>
@@ -172,31 +179,31 @@ const Home = () => {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">Services</h4>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">Quick Links</h4>
               <ul className="space-y-2 text-muted-foreground text-sm sm:text-base">
-                <li className="transition-colors hover:text-primary cursor-pointer">Personal Banking</li>
-                <li className="transition-colors hover:text-primary cursor-pointer">Business Banking</li>
-                <li className="transition-colors hover:text-primary cursor-pointer">Loans & Credit</li>
-                <li className="transition-colors hover:text-primary cursor-pointer">Investment Services</li>
+                <li><Link to="/about" className="transition-colors hover:text-primary">About Us</Link></li>
+                <li><Link to="/services" className="transition-colors hover:text-primary">Services</Link></li>
+                <li><Link to="/faq" className="transition-colors hover:text-primary">FAQs</Link></li>
+                <li><Link to="/contact" className="transition-colors hover:text-primary">Contact</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">Support</h4>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">Resources</h4>
               <ul className="space-y-2 text-muted-foreground text-sm sm:text-base">
-                <li className="transition-colors hover:text-primary cursor-pointer">Contact Us</li>
-                <li className="transition-colors hover:text-primary cursor-pointer">Help Center</li>
-                <li className="transition-colors hover:text-primary cursor-pointer">Security Center</li>
-                <li className="transition-colors hover:text-primary cursor-pointer">Terms of Service</li>
+                <li><Link to="/auth" className="transition-colors hover:text-primary">Online Banking</Link></li>
+                <li><Link to="/services" className="transition-colors hover:text-primary">Security Tips</Link></li>
+                <li><Link to="/faq" className="transition-colors hover:text-primary">Help Center</Link></li>
+                <li><Link to="/contact" className="transition-colors hover:text-primary">Support</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">Contact</h4>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base text-foreground">Get in Touch</h4>
               <div className="space-y-2 text-muted-foreground text-sm sm:text-base">
-                <p className="transition-colors hover:text-primary cursor-pointer">1-800-SECURE</p>
-                <p className="transition-colors hover:text-primary cursor-pointer">support@westerntrust.com</p>
-                <p>Available 24/7</p>
+                <p><a href="tel:1-800-SECURE" className="transition-colors hover:text-primary">1-800-SECURE</a></p>
+                <p><a href="mailto:support@westerntrust.com" className="transition-colors hover:text-primary">support@westerntrust.com</a></p>
+                <p className="text-success font-medium">Available 24/7</p>
               </div>
             </div>
           </div>
