@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bell, ArrowLeft, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { Bell, ArrowLeft, CheckCircle, Clock, AlertCircle, Info, CreditCard, TrendingUp, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useBankingData } from "@/hooks/useBankingData";
+import { useNotifications } from "@/hooks/useNotifications";
 import { useNavigate, Link } from "react-router-dom";
 
 const Notifications = () => {
   const { user } = useAuth();
-  const { transactions, loading } = useBankingData();
+  const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,34 +35,46 @@ const Notifications = () => {
     });
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-600" />;
-      case 'failed':
-        return <AlertCircle className="w-4 h-4 text-red-600" />;
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'transaction':
+        return <TrendingUp className="w-4 h-4 text-blue-600" />;
+      case 'loan':
+        return <Info className="w-4 h-4 text-purple-600" />;
+      case 'card':
+        return <CreditCard className="w-4 h-4 text-green-600" />;
+      case 'transfer':
+        return <ArrowLeft className="w-4 h-4 text-orange-600" />;
+      case 'bill':
+        return <CheckCircle className="w-4 h-4 text-indigo-600" />;
+      case 'security':
+        return <Shield className="w-4 h-4 text-red-600" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-600" />;
+        return <Bell className="w-4 h-4 text-gray-600" />;
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'transaction':
+        return 'bg-blue-100 text-blue-800';
+      case 'loan':
+        return 'bg-purple-100 text-purple-800';
+      case 'card':
         return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'failed':
+      case 'transfer':
+        return 'bg-orange-100 text-orange-800';
+      case 'bill':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'security':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const pendingTransactions = transactions.filter(t => t.status === 'pending');
-  const recentTransactions = transactions.slice(0, 10);
+  const unreadNotifications = notifications.filter(n => !n.read);
+  const readNotifications = notifications.filter(n => n.read);
 
   if (!user) return null;
 
@@ -106,40 +118,49 @@ const Notifications = () => {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="space-y-6">
-          {/* Pending Transactions Alert */}
-          {pendingTransactions.length > 0 && (
-            <Card className="border-yellow-200 bg-yellow-50">
+          {/* Header Actions */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">All Notifications</h2>
+              <p className="text-muted-foreground">{unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}</p>
+            </div>
+            {unreadCount > 0 && (
+              <Button onClick={markAllAsRead} variant="outline" size="sm">
+                Mark all as read
+              </Button>
+            )}
+          </div>
+
+          {/* Unread Notifications */}
+          {unreadNotifications.length > 0 && (
+            <Card className="border-primary/20 bg-primary/5">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-yellow-800">
-                  <Clock className="w-5 h-5" />
-                  Pending Transactions ({pendingTransactions.length})
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="w-5 h-5" />
+                  Unread ({unreadNotifications.length})
                 </CardTitle>
-                <CardDescription className="text-yellow-700">
-                  The following transactions are awaiting admin approval
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {pendingTransactions.map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-yellow-200">
-                      <div className="flex items-center space-x-3">
-                        {getStatusIcon(transaction.status)}
-                        <div>
-                          <p className="font-medium">{transaction.description}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Submitted on {formatDate(transaction.created_at)}
+                  {unreadNotifications.map((notification) => (
+                    <div 
+                      key={notification.id} 
+                      className="flex items-start justify-between p-4 bg-card rounded-lg border border-primary/20 cursor-pointer hover:bg-accent/50 transition-colors"
+                      onClick={() => markAsRead(notification.id)}
+                    >
+                      <div className="flex items-start space-x-3 flex-1">
+                        {getTypeIcon(notification.type)}
+                        <div className="flex-1">
+                          <p className="font-medium">{notification.title}</p>
+                          <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {formatDate(notification.created_at)}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold">
-                          {transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' ? '+' : '-'}
-                          {formatCurrency(transaction.amount)}
-                        </p>
-                        <Badge className={getStatusColor(transaction.status)}>
-                          {transaction.status}
-                        </Badge>
-                      </div>
+                      <Badge className={getTypeColor(notification.type)} variant="secondary">
+                        {notification.type}
+                      </Badge>
                     </div>
                   ))}
                 </div>
@@ -147,59 +168,56 @@ const Notifications = () => {
             </Card>
           )}
 
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5" />
-                Recent Activity
-              </CardTitle>
-              <CardDescription>
-                Your latest account notifications and transaction updates
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {recentTransactions.length > 0 ? (
-                <div className="space-y-4">
-                  {recentTransactions.map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        {getStatusIcon(transaction.status)}
-                        <div>
-                          <p className="font-medium">{transaction.description}</p>
-                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                            <span>{formatDate(transaction.created_at)}</span>
-                            <span>•</span>
-                            <span className="capitalize">{transaction.transaction_type.replace('_', ' ')}</span>
-                          </div>
+          {/* Read Notifications */}
+          {readNotifications.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-muted-foreground">
+                  <CheckCircle className="w-5 h-5" />
+                  Read ({readNotifications.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {readNotifications.map((notification) => (
+                    <div 
+                      key={notification.id} 
+                      className="flex items-start justify-between p-4 bg-muted/30 rounded-lg border opacity-60"
+                    >
+                      <div className="flex items-start space-x-3 flex-1">
+                        {getTypeIcon(notification.type)}
+                        <div className="flex-1">
+                          <p className="font-medium">{notification.title}</p>
+                          <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {formatDate(notification.created_at)}
+                          </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className={`font-bold ${
-                          transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' 
-                            ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_received' ? '+' : '-'}
-                          {formatCurrency(transaction.amount)}
-                        </p>
-                        <Badge className={getStatusColor(transaction.status)}>
-                          {transaction.status}
-                        </Badge>
-                      </div>
+                      <Badge className={getTypeColor(notification.type)} variant="outline">
+                        {notification.type}
+                      </Badge>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-8">
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Empty State */}
+          {notifications.length === 0 && (
+            <Card>
+              <CardContent className="py-12">
+                <div className="text-center">
                   <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No recent notifications</p>
+                  <p className="text-lg font-medium">No notifications yet</p>
                   <p className="text-sm text-muted-foreground mt-2">
-                    When you have banking activity, it will appear here
+                    When you have banking activity, notifications will appear here
                   </p>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Notification Settings Info */}
           <Card>
