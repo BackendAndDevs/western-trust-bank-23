@@ -27,13 +27,13 @@ export const useBills = () => {
 
     try {
       const { data, error } = await supabase
-        .from('bills')
+        .from('bills' as any)
         .select('*')
         .order('due_date', { ascending: true });
 
       if (error) throw error;
 
-      setBills(data || []);
+      setBills((data as any) || []);
     } catch (error: any) {
       console.error('Error fetching bills:', error);
       toast.error('Failed to load bills');
@@ -47,14 +47,14 @@ export const useBills = () => {
 
     try {
       const { data, error } = await supabase
-        .from('bills')
+        .from('bills' as any)
         .insert([{ ...billData, user_id: user.id }])
         .select()
         .single();
 
       if (error) throw error;
 
-      setBills(prev => [...prev, data]);
+      setBills(prev => [...prev, data as any]);
       toast.success('Bill added successfully');
       return data;
     } catch (error: any) {
@@ -67,7 +67,7 @@ export const useBills = () => {
   const payBill = async (billId: string, accountId: string) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('pay_bill', {
+      const { data, error } = await supabase.rpc('pay_bill' as any, {
         p_bill_id: billId,
         p_account_id: accountId
       });
@@ -95,7 +95,7 @@ export const useBills = () => {
   const deleteBill = async (billId: string) => {
     try {
       const { error } = await supabase
-        .from('bills')
+        .from('bills' as any)
         .delete()
         .eq('id', billId);
 

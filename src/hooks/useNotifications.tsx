@@ -22,12 +22,13 @@ export const useNotifications = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase.rpc('get_notifications', { p_limit: 50 });
+      const { data, error } = await supabase.rpc('get_notifications' as any, { p_limit: 50 });
 
       if (error) throw error;
 
-      setNotifications(data || []);
-      setUnreadCount(data?.filter((n: Notification) => !n.read).length || 0);
+      const notifications = (data as any) || [];
+      setNotifications(notifications);
+      setUnreadCount(Array.isArray(notifications) ? notifications.filter((n: Notification) => !n.read).length : 0);
     } catch (error: any) {
       console.error('Error fetching notifications:', error);
       toast.error('Failed to load notifications');
@@ -38,7 +39,7 @@ export const useNotifications = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      const { data, error } = await supabase.rpc('mark_notification_read', {
+      const { data, error } = await supabase.rpc('mark_notification_read' as any, {
         p_notification_id: notificationId
       });
 
@@ -62,7 +63,7 @@ export const useNotifications = () => {
     try {
       await Promise.all(
         unreadNotifications.map(n => 
-          supabase.rpc('mark_notification_read', { p_notification_id: n.id })
+          supabase.rpc('mark_notification_read' as any, { p_notification_id: n.id })
         )
       );
 

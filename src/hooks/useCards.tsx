@@ -9,10 +9,10 @@ interface Card {
   user_id: string;
   card_number: string;
   card_type: 'debit' | 'credit';
-  cvv: string;
   expiry_date: string;
   card_status: 'active' | 'frozen' | 'deactivated';
-  credit_limit?: number;
+  daily_limit?: number;
+  is_contactless?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -33,7 +33,7 @@ export const useCards = () => {
 
       if (error) throw error;
 
-      setCards(data || []);
+      setCards((data as any) || []);
     } catch (error: any) {
       console.error('Error fetching cards:', error);
       toast.error('Failed to load cards');
@@ -44,7 +44,7 @@ export const useCards = () => {
 
   const updateCardStatus = async (cardId: string, status: 'active' | 'frozen' | 'deactivated') => {
     try {
-      const { data, error } = await supabase.rpc('update_card_status', {
+      const { data, error } = await supabase.rpc('update_card_status' as any, {
         p_card_id: cardId,
         p_status: status
       });

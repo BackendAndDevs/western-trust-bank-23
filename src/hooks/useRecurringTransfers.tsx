@@ -27,13 +27,13 @@ export const useRecurringTransfers = () => {
 
     try {
       const { data, error } = await supabase
-        .from('recurring_transfers')
+        .from('recurring_transfers' as any)
         .select('*')
         .order('next_execution_date', { ascending: true });
 
       if (error) throw error;
 
-      setRecurringTransfers(data || []);
+      setRecurringTransfers((data as any) || []);
     } catch (error: any) {
       console.error('Error fetching recurring transfers:', error);
       toast.error('Failed to load recurring transfers');
@@ -50,7 +50,7 @@ export const useRecurringTransfers = () => {
     memo?: string
   ) => {
     try {
-      const { data, error } = await supabase.rpc('setup_recurring_transfer', {
+      const { data, error } = await supabase.rpc('setup_recurring_transfer' as any, {
         p_from_account_id: fromAccountId,
         p_to_account_number: toAccountNumber,
         p_amount: amount,
@@ -79,7 +79,7 @@ export const useRecurringTransfers = () => {
   const toggleRecurringTransfer = async (transferId: string, active: boolean) => {
     try {
       const { error } = await supabase
-        .from('recurring_transfers')
+        .from('recurring_transfers' as any)
         .update({ active })
         .eq('id', transferId);
 
@@ -99,7 +99,7 @@ export const useRecurringTransfers = () => {
   const deleteRecurringTransfer = async (transferId: string) => {
     try {
       const { error } = await supabase
-        .from('recurring_transfers')
+        .from('recurring_transfers' as any)
         .delete()
         .eq('id', transferId);
 

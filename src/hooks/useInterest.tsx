@@ -8,7 +8,7 @@ export const useInterest = () => {
   const calculateInterest = async (accountId: string) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('calculate_interest', {
+      const { data, error } = await supabase.rpc('calculate_interest' as any, {
         p_account_id: accountId
       });
 
