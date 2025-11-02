@@ -306,10 +306,10 @@ const Dashboard = () => {
               <span className="text-xs sm:text-sm">Bills</span>
             </Button>
           </Link>
-          <Link to="/notifications" className="block">
+          <Link to="/cards" className="block">
             <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
-              <Bell className="w-4 h-4 sm:w-6 sm:h-6" />
-              <span className="text-xs sm:text-sm">Alerts</span>
+              <CreditCard className="w-4 h-4 sm:w-6 sm:h-6" />
+              <span className="text-xs sm:text-sm">Cards</span>
             </Button>
           </Link>
         </div>

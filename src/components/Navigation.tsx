@@ -13,17 +13,20 @@ import {
   Settings,
   Shield,
   LogOut,
-  User
+  User,
+  Bell
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { unreadCount } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -70,10 +73,17 @@ const Navigation = () => {
       description: "Pay bills"
     },
     { 
-      label: "Services", 
-      path: "/services", 
+      label: "Cards", 
+      path: "/cards", 
       icon: CreditCard,
-      description: "Request services"
+      description: "Manage cards"
+    },
+    { 
+      label: "Notifications", 
+      path: "/notifications", 
+      icon: Bell,
+      description: "View alerts",
+      badge: unreadCount
     },
     { 
       label: "Profile", 
@@ -105,8 +115,8 @@ const Navigation = () => {
             onClick={() => mobile && setIsOpen(false)}
             className={`${
               mobile 
-                ? 'flex items-center space-x-3 p-3 rounded-lg transition-colors'
-                : 'px-3 py-2 rounded-md text-sm font-medium transition-colors'
+                ? 'flex items-center space-x-3 p-3 rounded-lg transition-colors relative'
+                : 'px-3 py-2 rounded-md text-sm font-medium transition-colors relative'
             } ${
               isActive
                 ? 'bg-primary text-primary-foreground'
@@ -122,6 +132,11 @@ const Navigation = () => {
             </div>
             {item.label === "Admin Panel" && (
               <Badge variant="destructive" className="ml-auto">Admin</Badge>
+            )}
+            {item.badge && item.badge > 0 && (
+              <Badge className="ml-auto bg-red-500 text-white">
+                {item.badge > 9 ? '9+' : item.badge}
+              </Badge>
             )}
           </Link>
         );

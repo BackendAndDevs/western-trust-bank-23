@@ -16,6 +16,7 @@ import Withdraw from "./pages/Withdraw";
 import Transfer from "./pages/Transfer";
 import Profile from "./pages/Profile";
 import Bills from "./pages/Bills";
+import Cards from "./pages/Cards";
 import Services from "./pages/Services";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
@@ -81,6 +82,11 @@ const App = () => (
             <Route path="/bills" element={
               <ProtectedRoute>
                 <Bills />
+              </ProtectedRoute>
+            } />
+            <Route path="/cards" element={
+              <ProtectedRoute>
+                <Cards />
               </ProtectedRoute>
             } />
             <Route path="/services" element={
