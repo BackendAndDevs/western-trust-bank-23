@@ -266,13 +266,13 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Account Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <Card className="bg-card/80 backdrop-blur-sm">
+          <Card className="glass card-hover animate-fade-in shadow-elegant">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Account Balance</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 {primaryAccount ? formatCurrency(primaryAccount.balance) : "$0.00"}
               </div>
               <p className="text-xs text-muted-foreground truncate">
@@ -282,7 +282,7 @@ const Dashboard = () => {
                 onClick={handleCalculateInterest} 
                 size="sm" 
                 variant="outline" 
-                className="mt-3 w-full"
+                className="mt-3 w-full hover:shadow-glow transition-all"
                 disabled={interestLoading || !primaryAccount}
               >
                 <TrendingUp className="w-3 h-3 mr-2" />
@@ -291,7 +291,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/80 backdrop-blur-sm">
+          <Card className="glass card-hover animate-fade-in shadow-elegant" style={{ animationDelay: '0.1s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Recent Transactions</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -304,7 +304,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/80 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
+          <Card className="glass card-hover animate-fade-in shadow-elegant sm:col-span-2 lg:col-span-1" style={{ animationDelay: '0.2s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Loans</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -322,38 +322,38 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <Link to="/deposit" className="block">
-            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+          <Link to="/deposit" className="block animate-scale-in" style={{ animationDelay: '0.3s' }}>
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 glass hover:shadow-glow transition-all" variant="outline">
               <Plus className="w-4 h-4 sm:w-6 sm:h-6" />
               <span className="text-xs sm:text-sm">Deposit</span>
             </Button>
           </Link>
-          <Link to="/withdraw" className="block">
-            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+          <Link to="/withdraw" className="block animate-scale-in" style={{ animationDelay: '0.35s' }}>
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 glass hover:shadow-glow transition-all" variant="outline">
               <Minus className="w-4 h-4 sm:w-6 sm:h-6" />
               <span className="text-xs sm:text-sm">Withdraw</span>
             </Button>
           </Link>
-          <Link to="/transfer" className="block">
-            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+          <Link to="/transfer" className="block animate-scale-in" style={{ animationDelay: '0.4s' }}>
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 glass hover:shadow-glow transition-all" variant="outline">
               <ArrowLeftRight className="w-4 h-4 sm:w-6 sm:h-6" />
               <span className="text-xs sm:text-sm">Transfer</span>
             </Button>
           </Link>
-          <Link to="/external-transfer" className="block">
-            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+          <Link to="/external-transfer" className="block animate-scale-in" style={{ animationDelay: '0.45s' }}>
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 glass hover:shadow-glow transition-all" variant="outline">
               <Building2 className="w-4 h-4 sm:w-6 sm:h-6" />
               <span className="text-xs sm:text-sm">External</span>
             </Button>
           </Link>
-          <Link to="/bills" className="block">
-            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+          <Link to="/bills" className="block animate-scale-in" style={{ animationDelay: '0.5s' }}>
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 glass hover:shadow-glow transition-all" variant="outline">
               <FileText className="w-4 h-4 sm:w-6 sm:h-6" />
               <span className="text-xs sm:text-sm">Bills</span>
             </Button>
           </Link>
-          <Link to="/cards" className="block">
-            <Button className="w-full h-14 sm:h-16 flex-col gap-1 bg-card/80 backdrop-blur-sm hover:bg-card" variant="outline">
+          <Link to="/cards" className="block animate-scale-in" style={{ animationDelay: '0.55s' }}>
+            <Button className="w-full h-14 sm:h-16 flex-col gap-1 glass hover:shadow-glow transition-all" variant="outline">
               <CreditCard className="w-4 h-4 sm:w-6 sm:h-6" />
               <span className="text-xs sm:text-sm">Cards</span>
             </Button>
@@ -370,7 +370,7 @@ const Dashboard = () => {
           </TabsList>
           
           <TabsContent value="transactions">
-            <Card className="bg-card/80 backdrop-blur-sm">
+            <Card className="glass shadow-elegant animate-fade-in">
               <CardHeader>
                 <CardTitle className="text-lg sm:text-xl">Recent Transactions</CardTitle>
                 <CardDescription className="text-sm">

@@ -66,10 +66,14 @@
     --gradient-primary: linear-gradient(135deg, hsl(var(--banking-green)), hsl(var(--banking-green-dark)));
     --gradient-accent: linear-gradient(135deg, hsl(var(--banking-green-light)), hsl(var(--banking-green)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--neutral-50)));
+    --gradient-glass: linear-gradient(135deg, hsl(var(--background) / 0.7), hsl(var(--background) / 0.5));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--neutral-50)));
 
     --shadow-elegant: 0 10px 30px -10px hsl(var(--banking-green) / 0.15);
     --shadow-green: 0 0 40px hsl(var(--banking-green) / 0.2);
     --shadow-card: 0 4px 6px -1px hsl(var(--neutral-900) / 0.1);
+    --shadow-lg: 0 20px 50px -12px hsl(var(--neutral-900) / 0.25);
+    --shadow-glow: 0 0 30px hsl(var(--banking-green) / 0.3);
 
     --radius: 0.5rem;
 
@@ -152,6 +156,15 @@
     background: var(--gradient-subtle);
   }
   
+  .bg-gradient-glass {
+    background: var(--gradient-glass);
+    backdrop-filter: blur(12px);
+  }
+  
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+  
   .shadow-elegant {
     box-shadow: var(--shadow-elegant);
   }
@@ -162,5 +175,28 @@
   
   .shadow-card {
     box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-lg {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .glass {
+    background: hsl(var(--background) / 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+  
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
   }
 }

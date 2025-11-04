@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Notifications from "@/pages/Notifications";
 import ExternalTransfer from "@/pages/ExternalTransfer";
 import RecurringTransfers from "./pages/RecurringTransfers";
+import Statements from "./pages/Statements";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -73,6 +74,11 @@ const App = () => (
             <Route path="/recurring-transfers" element={
               <ProtectedRoute>
                 <RecurringTransfers />
+              </ProtectedRoute>
+            } />
+            <Route path="/statements" element={
+              <ProtectedRoute>
+                <Statements />
               </ProtectedRoute>
             } />
             <Route path="/notifications" element={
