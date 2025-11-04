@@ -30,6 +30,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
+import { useInterest } from "@/hooks/useInterest";
 import Navigation from "@/components/Navigation";
 
 const Dashboard = () => {
@@ -44,6 +45,7 @@ const Dashboard = () => {
     transfer,
     requestLoan
   } = useBankingData();
+  const { calculateInterest, loading: interestLoading } = useInterest();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -167,6 +169,25 @@ const Dashboard = () => {
     }
   };
 
+  const handleCalculateInterest = async () => {
+    if (!primaryAccount) {
+      toast({
+        title: "Error",
+        description: "No account found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await calculateInterest(primaryAccount.id);
+      // Refresh account data after interest calculation
+      window.location.reload();
+    } catch (error) {
+      // Error is already handled by the hook
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -242,6 +263,16 @@ const Dashboard = () => {
               <p className="text-xs text-muted-foreground truncate">
                 Account: {primaryAccount?.account_number || "No account"}
               </p>
+              <Button 
+                onClick={handleCalculateInterest} 
+                size="sm" 
+                variant="outline" 
+                className="mt-3 w-full"
+                disabled={interestLoading || !primaryAccount}
+              >
+                <TrendingUp className="w-3 h-3 mr-2" />
+                {interestLoading ? 'Calculating...' : 'Calculate Interest'}
+              </Button>
             </CardContent>
           </Card>
 

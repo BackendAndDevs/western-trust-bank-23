@@ -14,7 +14,8 @@ import {
   Shield,
   LogOut,
   User,
-  Bell
+  Bell,
+  Calendar
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -65,6 +66,12 @@ const Navigation = () => {
       path: "/transfer", 
       icon: ArrowLeftRight,
       description: "Send money"
+    },
+    { 
+      label: "Recurring", 
+      path: "/recurring-transfers", 
+      icon: Calendar,
+      description: "Auto transfers"
     },
     { 
       label: "Bills", 

@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Notifications from "@/pages/Notifications";
 import ExternalTransfer from "@/pages/ExternalTransfer";
+import RecurringTransfers from "./pages/RecurringTransfers";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -67,6 +68,11 @@ const App = () => (
             <Route path="/external-transfer" element={
               <ProtectedRoute>
                 <ExternalTransfer />
+              </ProtectedRoute>
+            } />
+            <Route path="/recurring-transfers" element={
+              <ProtectedRoute>
+                <RecurringTransfers />
               </ProtectedRoute>
             } />
             <Route path="/notifications" element={
