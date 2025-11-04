@@ -64,6 +64,12 @@ const Dashboard = () => {
     creditScore: "",
     employmentStatus: ""
   });
+  
+  const [filters, setFilters] = useState({
+    type: "all",
+    status: "all",
+    search: ""
+  });
 
   const handleLogout = async () => {
     await signOut();
@@ -202,6 +208,15 @@ const Dashboard = () => {
       day: 'numeric',
     });
   };
+
+  const filteredTransactions = transactions.filter((transaction) => {
+    const matchesType = filters.type === "all" || transaction.transaction_type === filters.type;
+    const matchesStatus = filters.status === "all" || transaction.status === filters.status;
+    const matchesSearch = filters.search === "" || 
+      transaction.description.toLowerCase().includes(filters.search.toLowerCase());
+    
+    return matchesType && matchesStatus && matchesSearch;
+  });
 
   if (loading) {
     return (
@@ -363,9 +378,51 @@ const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {transactions.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                  <div>
+                    <Label>Transaction Type</Label>
+                    <Select value={filters.type} onValueChange={(value) => setFilters({...filters, type: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Types</SelectItem>
+                        <SelectItem value="deposit">Deposit</SelectItem>
+                        <SelectItem value="withdraw">Withdraw</SelectItem>
+                        <SelectItem value="transfer">Transfer</SelectItem>
+                        <SelectItem value="transfer_received">Transfer Received</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label>Status</Label>
+                    <Select value={filters.status} onValueChange={(value) => setFilters({...filters, status: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Statuses</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label>Search</Label>
+                    <Input 
+                      placeholder="Search description..." 
+                      value={filters.search}
+                      onChange={(e) => setFilters({...filters, search: e.target.value})}
+                    />
+                  </div>
+                </div>
+                
+                {filteredTransactions.length > 0 ? (
                   <div className="space-y-3 sm:space-y-4">
-                    {transactions.slice(0, 10).map((transaction) => (
+                    {filteredTransactions.slice(0, 10).map((transaction) => (
                       <div key={transaction.id} className="flex items-center justify-between p-3 sm:p-4 border rounded-lg bg-background/50">
                         <div className="flex items-center space-x-3">
                           <div className={`p-2 rounded-full ${
@@ -402,7 +459,9 @@ const Dashboard = () => {
                 ) : (
                   <div className="text-center py-8">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No transactions yet</p>
+                    <p className="text-muted-foreground">
+                      {transactions.length === 0 ? "No transactions yet" : "No transactions match your filters"}
+                    </p>
                   </div>
                 )}
               </CardContent>
