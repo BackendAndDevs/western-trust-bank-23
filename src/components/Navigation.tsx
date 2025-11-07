@@ -117,7 +117,7 @@ const Navigation = () => {
   }
 
   const NavContent = ({ mobile = false }) => (
-    <div className={`${mobile ? 'flex flex-col space-y-2' : 'hidden md:flex items-center space-x-1'}`}>
+    <div className={`${mobile ? 'flex flex-col space-y-1' : 'hidden md:flex items-center space-x-1'}`}>
       {menuItems.map((item) => {
         const isActive = location.pathname === item.path;
         const Icon = item.icon;
@@ -129,26 +129,35 @@ const Navigation = () => {
             onClick={() => mobile && setIsOpen(false)}
             className={`${
               mobile 
-                ? 'flex items-center space-x-3 p-3 rounded-lg transition-colors relative'
-                : 'px-3 py-2 rounded-md text-sm font-medium transition-colors relative'
+                ? 'flex items-center space-x-3 p-3 rounded-xl transition-all duration-300 relative group'
+                : 'px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 relative group'
             } ${
               isActive
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-primary hover:bg-muted'
+                ? mobile
+                  ? 'bg-gradient-primary text-white shadow-elegant'
+                  : 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:text-primary hover:bg-muted/50'
             }`}
           >
-            <Icon className={`${mobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
+            {/* Active indicator */}
+            {isActive && !mobile && (
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-gradient-primary rounded-full"></div>
+            )}
+            
+            <Icon className={`${mobile ? 'w-5 h-5' : 'w-4 h-4'} ${isActive ? '' : 'group-hover:scale-110 transition-transform'}`} />
             <div className={mobile ? 'flex-1' : ''}>
               <div className={mobile ? 'font-medium' : ''}>{item.label}</div>
               {mobile && (
-                <div className="text-xs text-muted-foreground">{item.description}</div>
+                <div className={`text-xs ${isActive ? 'text-white/80' : 'text-muted-foreground'}`}>
+                  {item.description}
+                </div>
               )}
             </div>
             {item.label === "Admin Panel" && (
-              <Badge variant="destructive" className="ml-auto">Admin</Badge>
+              <Badge variant="destructive" className="ml-auto shadow-sm">Admin</Badge>
             )}
             {item.badge && item.badge > 0 && (
-              <Badge className="ml-auto bg-red-500 text-white">
+              <Badge className="ml-auto bg-red-500 text-white animate-pulse shadow-sm">
                 {item.badge > 9 ? '9+' : item.badge}
               </Badge>
             )}
@@ -158,12 +167,12 @@ const Navigation = () => {
       
       {mobile && (
         <>
-          <div className="border-t my-4"></div>
+          <div className="border-t border-border/50 my-4"></div>
           <button
             onClick={handleLogout}
-            className="flex items-center space-x-3 p-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
+            className="flex items-center space-x-3 p-3 rounded-xl text-destructive hover:bg-destructive/10 transition-all duration-300 w-full text-left group"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span className="font-medium">Logout</span>
           </button>
         </>
