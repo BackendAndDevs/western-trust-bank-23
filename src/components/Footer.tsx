@@ -1,5 +1,6 @@
-import { Shield, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { Link } from "react-router-dom";
+import Logo from "./Logo";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -7,17 +8,11 @@ const Footer = () => {
   return (
     <footer className="bg-neutral-900 text-neutral-300">
       {/* Main Footer - Compact */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
           {/* Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg bg-gradient-primary shadow-green">
-              <Shield className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <span className="text-lg font-bold text-white">Western Trust Bank</span>
-              <p className="text-xs text-neutral-500">Trusted since 1874</p>
-            </div>
+          <div className="shrink-0">
+            <Logo size="sm" />
           </div>
 
           {/* Quick Links - Horizontal on desktop */}
