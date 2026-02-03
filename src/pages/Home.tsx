@@ -5,6 +5,15 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
+import Logo from "@/components/Logo";
+
+// Import futuristic icons
+import depositIcon from "@/assets/icons/deposit-icon.png";
+import transferIcon from "@/assets/icons/transfer-icon.png";
+import cardIcon from "@/assets/icons/card-icon.png";
+import securityIcon from "@/assets/icons/security-icon.png";
+import withdrawIcon from "@/assets/icons/withdraw-icon.png";
+import analyticsIcon from "@/assets/icons/analytics-icon.png";
 
 const Home = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -14,14 +23,8 @@ const Home = () => {
       {/* Header - Optimized for mobile */}
       <header className="border-b bg-card/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-primary rounded-full flex items-center justify-center shadow-elegant transition-transform duration-300 group-hover:scale-110">
-              <span className="text-white font-bold text-xs sm:text-sm">WTB</span>
-            </div>
-            <div className="hidden xs:block">
-              <h1 className="text-lg sm:text-2xl font-bold text-primary leading-tight">Western Trust</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Your Trusted Banking Partner</p>
-            </div>
+          <Link to="/" className="shrink-0">
+            <Logo size="sm" />
           </Link>
           
           {/* Desktop Nav */}
@@ -140,7 +143,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Services Section with Futuristic Icons */}
       <section className="py-12 sm:py-16 lg:py-24 bg-card relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 sm:mb-14">
@@ -152,31 +155,35 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {[
-              { icon: CreditCard, title: "Accounts", description: "Checking & savings with great rates", color: "bg-blue-500/10 text-blue-600" },
-              { icon: TrendingUp, title: "Transfers", description: "Instant secure money transfers", color: "bg-green-500/10 text-green-600" },
-              { icon: Award, title: "Loans", description: "Flexible terms, low rates", color: "bg-purple-500/10 text-purple-600" },
-              { icon: Lock, title: "Security", description: "Advanced fraud protection", color: "bg-red-500/10 text-red-600" }
+              { icon: depositIcon, title: "Deposits", description: "Secure fund deposits with instant confirmation", link: "/deposit" },
+              { icon: withdrawIcon, title: "Withdrawals", description: "Quick and easy cash withdrawals", link: "/withdraw" },
+              { icon: transferIcon, title: "Transfers", description: "Instant secure money transfers", link: "/transfer" },
+              { icon: cardIcon, title: "Cards", description: "Premium debit & credit cards", link: "/cards" },
+              { icon: securityIcon, title: "Security", description: "Advanced fraud protection", link: "/services" },
+              { icon: analyticsIcon, title: "Analytics", description: "AI-powered financial insights", link: "/dashboard" }
             ].map((service, idx) => (
-              <Card 
-                key={idx}
-                className="group card-hover border-primary/10 overflow-hidden" 
-              >
-                <CardHeader className="p-3 sm:p-4 lg:p-6">
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 ${service.color} rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <service.icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
-                  </div>
-                  <CardTitle className="text-sm sm:text-base lg:text-lg mb-1 sm:mb-2">
-                    {service.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
-                  <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                    {service.description}
-                  </p>
-                </CardContent>
-              </Card>
+              <Link to={service.link} key={idx}>
+                <Card className="group card-hover border-primary/10 overflow-hidden h-full bg-gradient-to-br from-neutral-900 to-neutral-800">
+                  <CardHeader className="p-4 sm:p-5 lg:p-6 text-center">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-3 sm:mb-4 rounded-2xl overflow-hidden group-hover:scale-110 transition-transform duration-300 shadow-glow">
+                      <img 
+                        src={service.icon} 
+                        alt={service.title} 
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                    <CardTitle className="text-sm sm:text-base lg:text-lg text-white mb-1 sm:mb-2">
+                      {service.title}
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
+                      {service.description}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>

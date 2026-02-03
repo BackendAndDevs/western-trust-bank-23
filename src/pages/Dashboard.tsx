@@ -32,6 +32,7 @@ import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
 import { useInterest } from "@/hooks/useInterest";
 import Navigation from "@/components/Navigation";
+import Logo from "@/components/Logo";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -240,12 +241,8 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center">
-                  <CreditCard className="w-3 h-3 sm:w-5 sm:h-5 text-primary-foreground" />
-                </div>
-                <span className="text-base sm:text-lg font-bold text-primary hidden sm:block">Western Trust Bank</span>
-                <span className="text-sm font-bold text-primary sm:hidden">WTB</span>
+              <Link to="/" className="shrink-0">
+                <Logo size="sm" />
               </Link>
             </div>
             

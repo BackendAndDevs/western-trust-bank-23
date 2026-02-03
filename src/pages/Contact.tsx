@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import Logo from "@/components/Logo";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -32,14 +33,8 @@ const Contact = () => {
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center shadow-elegant transition-transform duration-300 group-hover:scale-110">
-              <span className="text-white font-bold text-sm">WTB</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-primary">Western Trust Bank</h1>
-              <p className="text-xs text-muted-foreground">Your Trusted Banking Partner</p>
-            </div>
+          <Link to="/" className="shrink-0">
+            <Logo size="sm" />
           </Link>
           
           <div className="flex space-x-4">

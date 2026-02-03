@@ -4,11 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CreditCard, TrendingDown, ArrowLeft, Banknote } from "lucide-react";
+import { TrendingDown, ArrowLeft, Banknote } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import Logo from "@/components/Logo";
 
 const Withdraw = () => {
   const { user } = useAuth();
@@ -90,16 +91,10 @@ const Withdraw = () => {
             <Link to="/dashboard">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
+                Back
               </Button>
             </Link>
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Western Trust Bank</h1>
-              <p className="text-sm text-muted-foreground">Withdraw Funds</p>
-            </div>
+            <Logo size="sm" />
           </div>
         </div>
       </header>
