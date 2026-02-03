@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreditCard, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import Logo from "@/components/Logo";
 
 const Auth = () => {
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
@@ -141,11 +142,8 @@ const Auth = () => {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
-          <Link to="/" className="inline-flex items-center space-x-2 mb-4 sm:mb-6">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center">
-              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-primary">Western Trust Bank</h1>
+          <Link to="/" className="inline-flex justify-center mb-4 sm:mb-6">
+            <Logo size="md" />
           </Link>
         </div>
 

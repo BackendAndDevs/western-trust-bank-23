@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CreditCard, User, ArrowLeft, Settings, Bell, Shield, Eye, Camera, Upload } from "lucide-react";
+import { User, ArrowLeft, Settings, Bell, Shield, Eye, Camera, Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import Logo from "@/components/Logo";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -115,16 +116,10 @@ const Profile = () => {
             <Link to="/dashboard">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
+                Back
               </Button>
             </Link>
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-primary">Western Trust Bank</h1>
-              <p className="text-sm text-muted-foreground">Account Settings</p>
-            </div>
+            <Logo size="sm" />
           </div>
         </div>
       </header>
