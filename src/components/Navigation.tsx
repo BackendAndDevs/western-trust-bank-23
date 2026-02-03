@@ -10,7 +10,6 @@ import {
   Minus,
   ArrowLeftRight,
   FileText,
-  Settings,
   Shield,
   LogOut,
   User,
@@ -22,6 +21,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
+import Logo from "./Logo";
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -196,18 +196,10 @@ const Navigation = () => {
             <Menu className="h-4 w-4" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-80">
+        <SheetContent side="left" className="w-[280px] sm:w-80 p-4 sm:p-6">
           <div className="flex flex-col h-full">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h2 className="font-bold text-primary">Western Trust Bank</h2>
-                <p className="text-sm text-muted-foreground">
-                  {user.user_metadata?.full_name || user.email}
-                </p>
-              </div>
+            <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-border">
+              <Logo size="sm" />
             </div>
             
             <div className="flex-1 overflow-y-auto">

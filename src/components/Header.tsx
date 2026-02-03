@@ -1,46 +1,50 @@
-
 import { Button } from "@/components/ui/button";
-import { Menu, X, Shield, Phone } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import Logo from "./Logo";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-background/95 backdrop-blur-md shadow-sm border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex justify-between items-center py-3 sm:py-4">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">Western Trust Bank</span>
-          </div>
+          <Link to="/" className="shrink-0">
+            <Logo size="sm" />
+          </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="#services" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+          <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
+            <Link to="/services" className="text-muted-foreground hover:text-primary font-medium transition-colors text-sm xl:text-base">
               Services
-            </a>
-            <a href="#about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            </Link>
+            <Link to="/about" className="text-muted-foreground hover:text-primary font-medium transition-colors text-sm xl:text-base">
               About
-            </a>
-            <a href="#contact" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            </Link>
+            <Link to="/contact" className="text-muted-foreground hover:text-primary font-medium transition-colors text-sm xl:text-base">
               Contact
-            </a>
-            <div className="flex items-center space-x-2 text-gray-600">
+            </Link>
+            <div className="hidden xl:flex items-center space-x-2 text-muted-foreground">
               <Phone className="h-4 w-4" />
               <span className="text-sm font-medium">1-800-WESTERN</span>
             </div>
           </nav>
 
           {/* Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-              Login
-            </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              Open Account
-            </Button>
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-3">
+            <Link to="/auth">
+              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 text-sm px-3 lg:px-4">
+                Login
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button className="bg-gradient-primary hover:opacity-90 text-primary-foreground text-sm px-3 lg:px-4">
+                Open Account
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -54,28 +58,44 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
-            <nav className="flex flex-col space-y-4">
-              <a href="#services" className="text-gray-700 hover:text-blue-600 font-medium">
+          <div className="md:hidden py-4 border-t border-border animate-fade-in">
+            <nav className="flex flex-col space-y-3">
+              <Link 
+                to="/services" 
+                className="text-foreground hover:text-primary font-medium py-2 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Services
-              </a>
-              <a href="#about" className="text-gray-700 hover:text-blue-600 font-medium">
+              </Link>
+              <Link 
+                to="/about" 
+                className="text-foreground hover:text-primary font-medium py-2 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 About
-              </a>
-              <a href="#contact" className="text-gray-700 hover:text-blue-600 font-medium">
+              </Link>
+              <Link 
+                to="/contact" 
+                className="text-foreground hover:text-primary font-medium py-2 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Contact
-              </a>
-              <div className="flex items-center space-x-2 text-gray-600 pt-2">
+              </Link>
+              <div className="flex items-center space-x-2 text-muted-foreground py-2">
                 <Phone className="h-4 w-4" />
                 <span className="text-sm font-medium">1-800-WESTERN</span>
               </div>
-              <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-                  Login
-                </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Open Account
-                </Button>
+              <div className="flex flex-col space-y-2 pt-3">
+                <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/5">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                  <Button className="w-full bg-gradient-primary hover:opacity-90 text-primary-foreground">
+                    Open Account
+                  </Button>
+                </Link>
               </div>
             </nav>
           </div>
