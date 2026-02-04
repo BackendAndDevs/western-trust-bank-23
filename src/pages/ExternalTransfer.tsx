@@ -59,7 +59,6 @@ const ExternalTransfer = () => {
       formData.toAccountNumber,
       formData.toAccountHolderName,
       amount,
-      formData.transferType,
       formData.description || undefined
     );
 

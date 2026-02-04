@@ -87,9 +87,9 @@ const ExternalTransferForm = ({ banks, loading, onSubmit, formatCurrency }: Exte
                 {banks.map((bank) => (
                   <SelectItem key={bank.id} value={bank.id}>
                     <div className="flex flex-col">
-                      <span>{bank.name}</span>
+                      <span>{bank.bank_name}</span>
                       <span className="text-xs text-muted-foreground">
-                        {bank.city}, {bank.state} • Routing: {bank.routing_number}
+                        Routing: {bank.routing_number}
                       </span>
                     </div>
                   </SelectItem>

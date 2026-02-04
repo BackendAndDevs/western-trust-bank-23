@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
@@ -22,22 +22,22 @@ export type Database = {
           created_at: string
           currency: string
           id: string
-          is_primary: boolean | null
-          modified_at: string | null
-          modified_by: string | null
+          interest_rate: number | null
+          is_primary: boolean
+          last_interest_date: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           account_number: string
-          account_type: string
+          account_type?: string
           balance?: number
           created_at?: string
           currency?: string
           id?: string
-          is_primary?: boolean | null
-          modified_at?: string | null
-          modified_by?: string | null
+          interest_rate?: number | null
+          is_primary?: boolean
+          last_interest_date?: string | null
           updated_at?: string
           user_id: string
         }
@@ -48,9 +48,51 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
-          is_primary?: boolean | null
-          modified_at?: string | null
-          modified_by?: string | null
+          interest_rate?: number | null
+          is_primary?: boolean
+          last_interest_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bills: {
+        Row: {
+          account_number: string
+          amount: number
+          auto_pay: boolean
+          biller_name: string
+          category: string
+          created_at: string
+          due_date: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_number: string
+          amount: number
+          auto_pay?: boolean
+          biller_name: string
+          category: string
+          created_at?: string
+          due_date: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string
+          amount?: number
+          auto_pay?: boolean
+          biller_name?: string
+          category?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -60,7 +102,7 @@ export type Database = {
         Row: {
           account_id: string
           card_number: string
-          card_status: string | null
+          card_status: string
           card_type: string
           created_at: string
           daily_limit: number | null
@@ -73,8 +115,8 @@ export type Database = {
         Insert: {
           account_id: string
           card_number: string
-          card_status?: string | null
-          card_type: string
+          card_status?: string
+          card_type?: string
           created_at?: string
           daily_limit?: number | null
           expiry_date: string
@@ -86,7 +128,7 @@ export type Database = {
         Update: {
           account_id?: string
           card_number?: string
-          card_status?: string | null
+          card_status?: string
           card_type?: string
           created_at?: string
           daily_limit?: number | null
@@ -109,71 +151,56 @@ export type Database = {
       external_transfers: {
         Row: {
           amount: number
-          completed_at: string | null
-          created_at: string | null
-          description: string | null
-          fee_amount: number | null
-          from_account_id: string | null
+          bank_id: string
+          created_at: string
+          from_account_id: string
           id: string
-          processed_at: string | null
-          processing_time_hours: number | null
-          reference_number: string | null
-          status: string | null
-          to_account_holder_name: string
-          to_account_number: string
-          to_bank_id: string | null
-          transfer_type: string
+          memo: string | null
+          recipient_account_number: string
+          recipient_name: string
+          status: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           amount: number
-          completed_at?: string | null
-          created_at?: string | null
-          description?: string | null
-          fee_amount?: number | null
-          from_account_id?: string | null
+          bank_id: string
+          created_at?: string
+          from_account_id: string
           id?: string
-          processed_at?: string | null
-          processing_time_hours?: number | null
-          reference_number?: string | null
-          status?: string | null
-          to_account_holder_name: string
-          to_account_number: string
-          to_bank_id?: string | null
-          transfer_type: string
+          memo?: string | null
+          recipient_account_number: string
+          recipient_name: string
+          status?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
-          completed_at?: string | null
-          created_at?: string | null
-          description?: string | null
-          fee_amount?: number | null
-          from_account_id?: string | null
+          bank_id?: string
+          created_at?: string
+          from_account_id?: string
           id?: string
-          processed_at?: string | null
-          processing_time_hours?: number | null
-          reference_number?: string | null
-          status?: string | null
-          to_account_holder_name?: string
-          to_account_number?: string
-          to_bank_id?: string | null
-          transfer_type?: string
+          memo?: string | null
+          recipient_account_number?: string
+          recipient_name?: string
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "external_transfers_bank_id_fkey"
+            columns: ["bank_id"]
+            isOneToOne: false
+            referencedRelation: "us_banks"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "external_transfers_from_account_id_fkey"
             columns: ["from_account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "external_transfers_to_bank_id_fkey"
-            columns: ["to_bank_id"]
-            isOneToOne: false
-            referencedRelation: "us_banks"
             referencedColumns: ["id"]
           },
         ]
@@ -191,7 +218,7 @@ export type Database = {
           purpose: string
           reviewed_at: string | null
           reviewed_by: string | null
-          status: string | null
+          status: string
           updated_at: string
           user_id: string
         }
@@ -207,7 +234,7 @@ export type Database = {
           purpose: string
           reviewed_at?: string | null
           reviewed_by?: string | null
-          status?: string | null
+          status?: string
           updated_at?: string
           user_id: string
         }
@@ -223,92 +250,172 @@ export type Database = {
           purpose?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
-          status?: string | null
+          status?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
           user_id?: string
         }
         Relationships: []
       }
       profiles: {
         Row: {
-          account_status: string | null
-          account_type: string | null
+          account_status: string
+          account_type: string
           address: string | null
+          avatar_url: string | null
           created_at: string
-          date_of_birth: string | null
-          full_name: string
+          full_name: string | null
           id: string
-          phone_number: string | null
+          phone: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
-          account_status?: string | null
-          account_type?: string | null
+          account_status?: string
+          account_type?: string
           address?: string | null
+          avatar_url?: string | null
           created_at?: string
-          date_of_birth?: string | null
-          full_name: string
+          full_name?: string | null
           id?: string
-          phone_number?: string | null
+          phone?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
-          account_status?: string | null
-          account_type?: string | null
+          account_status?: string
+          account_type?: string
           address?: string | null
+          avatar_url?: string | null
           created_at?: string
-          date_of_birth?: string | null
-          full_name?: string
+          full_name?: string | null
           id?: string
-          phone_number?: string | null
+          phone?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
       }
+      recurring_transfers: {
+        Row: {
+          active: boolean
+          amount: number
+          created_at: string
+          frequency: string
+          from_account_id: string
+          id: string
+          memo: string | null
+          next_execution_date: string
+          to_account_number: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          created_at?: string
+          frequency: string
+          from_account_id: string
+          id?: string
+          memo?: string | null
+          next_execution_date: string
+          to_account_number: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          created_at?: string
+          frequency?: string
+          from_account_id?: string
+          id?: string
+          memo?: string | null
+          next_execution_date?: string
+          to_account_number?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_transfers_from_account_id_fkey"
+            columns: ["from_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           account_id: string
+          admin_notes: string | null
           amount: number
           created_at: string
-          currency: string
-          description: string
+          description: string | null
           id: string
           recipient_account_id: string | null
           recipient_info: Json | null
-          reference_number: string | null
-          status: string | null
+          status: string
           transaction_type: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           account_id: string
+          admin_notes?: string | null
           amount: number
           created_at?: string
-          currency?: string
-          description: string
+          description?: string | null
           id?: string
           recipient_account_id?: string | null
           recipient_info?: Json | null
-          reference_number?: string | null
-          status?: string | null
+          status?: string
           transaction_type: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           account_id?: string
+          admin_notes?: string | null
           amount?: number
           created_at?: string
-          currency?: string
-          description?: string
+          description?: string | null
           id?: string
           recipient_account_id?: string | null
           recipient_info?: Json | null
-          reference_number?: string | null
-          status?: string | null
+          status?: string
           transaction_type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -330,55 +437,43 @@ export type Database = {
       }
       us_banks: {
         Row: {
-          active: boolean | null
-          bank_code: string | null
-          city: string | null
-          created_at: string | null
+          bank_name: string
+          created_at: string
           id: string
-          name: string
           routing_number: string
-          state: string | null
           swift_code: string | null
         }
         Insert: {
-          active?: boolean | null
-          bank_code?: string | null
-          city?: string | null
-          created_at?: string | null
+          bank_name: string
+          created_at?: string
           id?: string
-          name: string
           routing_number: string
-          state?: string | null
           swift_code?: string | null
         }
         Update: {
-          active?: boolean | null
-          bank_code?: string | null
-          city?: string | null
-          created_at?: string | null
+          bank_name?: string
+          created_at?: string
           id?: string
-          name?: string
           routing_number?: string
-          state?: string | null
           swift_code?: string | null
         }
         Relationships: []
       }
       user_roles: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           role: string
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           role?: string
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           role?: string
           user_id?: string
@@ -400,12 +495,9 @@ export type Database = {
         }
         Returns: Json
       }
-      admin_delete_user: {
-        Args: { target_user_id: string }
-        Returns: undefined
-      }
+      admin_delete_user: { Args: { target_user_id: string }; Returns: Json }
       admin_get_all_accounts: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           account_number: string
           account_type: string
@@ -421,7 +513,7 @@ export type Database = {
         }[]
       }
       admin_get_all_loans: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           admin_notes: string
           amount: number
@@ -441,7 +533,7 @@ export type Database = {
         }[]
       }
       admin_get_all_transactions: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           account_id: string
           account_number: string
@@ -459,7 +551,7 @@ export type Database = {
         }[]
       }
       admin_get_all_users: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           account_count: number
           account_status: string
@@ -476,11 +568,11 @@ export type Database = {
           new_status: string
           transaction_id: string
         }
-        Returns: undefined
+        Returns: Json
       }
       admin_review_loan: {
         Args: { admin_notes?: string; loan_id: string; new_status: string }
-        Returns: undefined
+        Returns: Json
       }
       admin_update_account_balance: {
         Args: {
@@ -488,41 +580,56 @@ export type Database = {
           new_balance: number
           target_account_id: string
         }
-        Returns: undefined
+        Returns: Json
       }
-      debug_user_accounts: {
-        Args: { target_user_id?: string }
+      calculate_interest: { Args: { p_account_id: string }; Returns: Json }
+      generate_account_number: { Args: never; Returns: string }
+      get_notifications: {
+        Args: { p_limit?: number }
         Returns: {
-          account_id: string
-          account_number: string
-          balance: number
-          debug_info: string
-          user_id: string
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
         }[]
       }
-      generate_account_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_card_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
       has_role: {
-        Args: { _role: string; _user_id: string }
+        Args: { p_role: string; p_user_id: string }
         Returns: boolean
+      }
+      mark_notification_read: {
+        Args: { p_notification_id: string }
+        Returns: boolean
+      }
+      pay_bill: {
+        Args: { p_account_id: string; p_bill_id: string }
+        Returns: Json
       }
       process_external_transfer: {
         Args: {
           p_amount: number
-          p_description?: string
+          p_bank_id: string
           p_from_account_id: string
-          p_to_account_holder_name: string
-          p_to_account_number: string
-          p_to_bank_id: string
-          p_transfer_type: string
-          p_user_id: string
+          p_memo?: string
+          p_recipient_account_number: string
+          p_recipient_name: string
         }
+        Returns: Json
+      }
+      setup_recurring_transfer: {
+        Args: {
+          p_amount: number
+          p_frequency: string
+          p_from_account_id: string
+          p_memo?: string
+          p_to_account_number: string
+        }
+        Returns: Json
+      }
+      update_card_status: {
+        Args: { p_card_id: string; p_status: string }
         Returns: Json
       }
     }
