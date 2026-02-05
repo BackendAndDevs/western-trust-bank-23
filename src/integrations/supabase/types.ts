@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_statements: {
+        Row: {
+          account_id: string
+          closing_balance: number
+          created_at: string
+          id: string
+          opening_balance: number
+          period_end: string
+          period_start: string
+          statement_date: string
+          statement_url: string | null
+          total_deposits: number | null
+          total_withdrawals: number | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          closing_balance: number
+          created_at?: string
+          id?: string
+          opening_balance: number
+          period_end: string
+          period_start: string
+          statement_date: string
+          statement_url?: string | null
+          total_deposits?: number | null
+          total_withdrawals?: number | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          closing_balance?: number
+          created_at?: string
+          id?: string
+          opening_balance?: number
+          period_end?: string
+          period_start?: string
+          statement_date?: string
+          statement_url?: string | null
+          total_deposits?: number | null
+          total_withdrawals?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_statements_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accounts: {
         Row: {
           account_number: string
@@ -55,6 +108,95 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      activity_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      beneficiaries: {
+        Row: {
+          account_number: string
+          bank_id: string | null
+          bank_name: string | null
+          beneficiary_type: string
+          created_at: string
+          id: string
+          is_verified: boolean | null
+          nickname: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_number: string
+          bank_id?: string | null
+          bank_name?: string | null
+          beneficiary_type?: string
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          nickname: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string
+          bank_id?: string | null
+          bank_name?: string | null
+          beneficiary_type?: string
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          nickname?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beneficiaries_bank_id_fkey"
+            columns: ["bank_id"]
+            isOneToOne: false
+            referencedRelation: "us_banks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bills: {
         Row: {
@@ -141,6 +283,74 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "cards_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      check_deposits: {
+        Row: {
+          account_id: string
+          admin_notes: string | null
+          available_date: string | null
+          back_image_url: string | null
+          check_amount: number
+          check_number: string
+          created_at: string
+          front_image_url: string | null
+          hold_days: number | null
+          id: string
+          payer_bank: string | null
+          payer_name: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          admin_notes?: string | null
+          available_date?: string | null
+          back_image_url?: string | null
+          check_amount: number
+          check_number: string
+          created_at?: string
+          front_image_url?: string | null
+          hold_days?: number | null
+          id?: string
+          payer_bank?: string | null
+          payer_name: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          admin_notes?: string | null
+          available_date?: string | null
+          back_image_url?: string | null
+          check_amount?: number
+          check_number?: string
+          created_at?: string
+          front_image_url?: string | null
+          hold_days?: number | null
+          id?: string
+          payer_bank?: string | null
+          payer_name?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "check_deposits_account_id_fkey"
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
@@ -375,6 +585,57 @@ export type Database = {
           },
         ]
       }
+      security_settings: {
+        Row: {
+          account_locked: boolean | null
+          created_at: string
+          failed_login_attempts: number | null
+          id: string
+          large_transaction_alert: number | null
+          last_password_change: string | null
+          locked_until: string | null
+          login_notifications: boolean | null
+          transaction_notifications: boolean | null
+          trusted_devices: Json | null
+          two_factor_enabled: boolean | null
+          two_factor_method: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_locked?: boolean | null
+          created_at?: string
+          failed_login_attempts?: number | null
+          id?: string
+          large_transaction_alert?: number | null
+          last_password_change?: string | null
+          locked_until?: string | null
+          login_notifications?: boolean | null
+          transaction_notifications?: boolean | null
+          trusted_devices?: Json | null
+          two_factor_enabled?: boolean | null
+          two_factor_method?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_locked?: boolean | null
+          created_at?: string
+          failed_login_attempts?: number | null
+          id?: string
+          large_transaction_alert?: number | null
+          last_password_change?: string | null
+          locked_until?: string | null
+          login_notifications?: boolean | null
+          transaction_notifications?: boolean | null
+          trusted_devices?: Json | null
+          two_factor_enabled?: boolean | null
+          two_factor_method?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           account_id: string
@@ -480,6 +741,86 @@ export type Database = {
         }
         Relationships: []
       }
+      wire_transfers: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          currency: string
+          fee_amount: number | null
+          from_account_id: string
+          iban: string | null
+          id: string
+          purpose: string | null
+          recipient_account: string
+          recipient_bank: string
+          recipient_name: string
+          reference_number: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          routing_number: string | null
+          status: string
+          swift_code: string | null
+          updated_at: string
+          user_id: string
+          wire_type: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          fee_amount?: number | null
+          from_account_id: string
+          iban?: string | null
+          id?: string
+          purpose?: string | null
+          recipient_account: string
+          recipient_bank: string
+          recipient_name: string
+          reference_number?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          routing_number?: string | null
+          status?: string
+          swift_code?: string | null
+          updated_at?: string
+          user_id: string
+          wire_type: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          fee_amount?: number | null
+          from_account_id?: string
+          iban?: string | null
+          id?: string
+          purpose?: string | null
+          recipient_account?: string
+          recipient_bank?: string
+          recipient_name?: string
+          reference_number?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          routing_number?: string | null
+          status?: string
+          swift_code?: string | null
+          updated_at?: string
+          user_id?: string
+          wire_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wire_transfers_from_account_id_fkey"
+            columns: ["from_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -512,6 +853,92 @@ export type Database = {
           user_name: string
         }[]
       }
+      admin_get_all_beneficiaries: {
+        Args: never
+        Returns: {
+          account_number: string
+          bank_name: string
+          beneficiary_type: string
+          created_at: string
+          id: string
+          is_verified: boolean
+          nickname: string
+          status: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      admin_get_all_bills: {
+        Args: never
+        Returns: {
+          amount: number
+          auto_pay: boolean
+          biller_name: string
+          category: string
+          created_at: string
+          due_date: string
+          id: string
+          status: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      admin_get_all_cards: {
+        Args: never
+        Returns: {
+          account_id: string
+          account_number: string
+          card_number: string
+          card_status: string
+          card_type: string
+          created_at: string
+          daily_limit: number
+          expiry_date: string
+          id: string
+          is_contactless: boolean
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      admin_get_all_check_deposits: {
+        Args: never
+        Returns: {
+          account_id: string
+          account_number: string
+          check_amount: number
+          check_number: string
+          created_at: string
+          hold_days: number
+          id: string
+          payer_name: string
+          status: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      admin_get_all_external_transfers: {
+        Args: never
+        Returns: {
+          account_number: string
+          amount: number
+          bank_id: string
+          bank_name: string
+          created_at: string
+          from_account_id: string
+          id: string
+          memo: string
+          recipient_account_number: string
+          recipient_name: string
+          status: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       admin_get_all_loans: {
         Args: never
         Returns: {
@@ -527,6 +954,24 @@ export type Database = {
           reviewed_at: string
           reviewed_by: string
           status: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      admin_get_all_recurring_transfers: {
+        Args: never
+        Returns: {
+          account_number: string
+          active: boolean
+          amount: number
+          created_at: string
+          frequency: string
+          from_account_id: string
+          id: string
+          memo: string
+          next_execution_date: string
+          to_account_number: string
           user_email: string
           user_id: string
           user_name: string
@@ -562,12 +1007,44 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_get_all_wire_transfers: {
+        Args: never
+        Returns: {
+          account_number: string
+          amount: number
+          created_at: string
+          currency: string
+          fee_amount: number
+          id: string
+          purpose: string
+          recipient_bank: string
+          recipient_name: string
+          status: string
+          user_email: string
+          user_id: string
+          user_name: string
+          wire_type: string
+        }[]
+      }
+      admin_get_dashboard_stats: { Args: never; Returns: Json }
+      admin_process_check_deposit: {
+        Args: { admin_notes?: string; deposit_id: string; new_status: string }
+        Returns: Json
+      }
+      admin_process_external_transfer: {
+        Args: { admin_notes?: string; new_status: string; transfer_id: string }
+        Returns: Json
+      }
       admin_process_transaction: {
         Args: {
           admin_notes?: string
           new_status: string
           transaction_id: string
         }
+        Returns: Json
+      }
+      admin_process_wire_transfer: {
+        Args: { admin_notes?: string; new_status: string; transfer_id: string }
         Returns: Json
       }
       admin_review_loan: {
@@ -580,6 +1057,14 @@ export type Database = {
           new_balance: number
           target_account_id: string
         }
+        Returns: Json
+      }
+      admin_update_card_status: {
+        Args: { card_id: string; new_status: string }
+        Returns: Json
+      }
+      admin_verify_beneficiary: {
+        Args: { beneficiary_id: string; new_status: string }
         Returns: Json
       }
       calculate_interest: { Args: { p_account_id: string }; Returns: Json }
