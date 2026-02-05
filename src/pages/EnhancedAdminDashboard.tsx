@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAdminData, AdminUser } from '@/hooks/useAdminData';
+ import { useEnhancedAdminData } from '@/hooks/useEnhancedAdminData';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,9 +29,16 @@ import {
   Shield,
   LogOut,
   Check,
-  X
+   X,
+   Building2,
+   CreditCard,
+   Send,
+   FileCheck,
+   UserCheck,
+   RefreshCw
 } from 'lucide-react';
 import Logo from "@/components/Logo";
+import { Link } from "react-router-dom";
 
 const EnhancedAdminDashboard = () => {
   const { signOut } = useAuth();
@@ -51,6 +59,27 @@ const EnhancedAdminDashboard = () => {
     deleteUser,
     refetchData
   } = useAdminData();
+
+   const {
+     stats,
+     externalTransfers,
+     wireTransfers,
+     checkDeposits,
+     cards,
+     beneficiaries,
+     pendingExternalTransfers,
+     pendingWireTransfers,
+     pendingCheckDeposits,
+     pendingBeneficiaries,
+     loading: enhancedLoading,
+     processExternalTransfer,
+     processWireTransfer,
+     processCheckDeposit,
+     updateCardStatus,
+     verifyBeneficiary,
+     refetchData: refetchEnhancedData
+   } = useEnhancedAdminData();
+
   const { toast } = useToast();
 
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -202,7 +231,57 @@ const EnhancedAdminDashboard = () => {
     }).format(new Date(dateString));
   };
 
-  if (loading) {
+   const handleProcessExternalTransfer = async (transferId: string, status: 'approved' | 'rejected') => {
+     const result = await processExternalTransfer(transferId, status);
+     if (result?.error) {
+       toast({ title: "Error", description: "Failed to process external transfer.", variant: "destructive" });
+     } else {
+       toast({ title: "Success", description: `External transfer ${status} successfully.` });
+     }
+   };
+
+   const handleProcessWireTransfer = async (transferId: string, status: 'approved' | 'rejected') => {
+     const result = await processWireTransfer(transferId, status);
+     if (result?.error) {
+       toast({ title: "Error", description: "Failed to process wire transfer.", variant: "destructive" });
+     } else {
+       toast({ title: "Success", description: `Wire transfer ${status} successfully.` });
+     }
+   };
+
+   const handleProcessCheckDeposit = async (depositId: string, status: 'approved' | 'rejected' | 'cleared') => {
+     const result = await processCheckDeposit(depositId, status);
+     if (result?.error) {
+       toast({ title: "Error", description: "Failed to process check deposit.", variant: "destructive" });
+     } else {
+       toast({ title: "Success", description: `Check deposit ${status} successfully.` });
+     }
+   };
+
+   const handleUpdateCardStatus = async (cardId: string, status: string) => {
+     const result = await updateCardStatus(cardId, status);
+     if (result?.error) {
+       toast({ title: "Error", description: "Failed to update card status.", variant: "destructive" });
+     } else {
+       toast({ title: "Success", description: `Card status updated to ${status}.` });
+     }
+   };
+
+   const handleVerifyBeneficiary = async (beneficiaryId: string, status: 'active' | 'suspended') => {
+     const result = await verifyBeneficiary(beneficiaryId, status);
+     if (result?.error) {
+       toast({ title: "Error", description: "Failed to verify beneficiary.", variant: "destructive" });
+     } else {
+       toast({ title: "Success", description: `Beneficiary ${status === 'active' ? 'verified' : 'suspended'} successfully.` });
+     }
+   };
+
+   const handleRefreshAll = async () => {
+     await Promise.all([refetchData(), refetchEnhancedData()]);
+     toast({ title: "Refreshed", description: "All data has been refreshed." });
+   };
+
+   if (loading || enhancedLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card>
@@ -228,6 +307,13 @@ const EnhancedAdminDashboard = () => {
               <Badge variant="outline" className="border-destructive text-destructive">Admin</Badge>
             </div>
             <div className="flex items-center space-x-4">
+               <Link to="/dashboard">
+                 <Button variant="ghost" size="sm">User Dashboard</Button>
+               </Link>
+               <Button variant="outline" size="sm" onClick={handleRefreshAll}>
+                 <RefreshCw className="w-4 h-4 mr-2" />
+                 Refresh
+               </Button>
               <Button onClick={() => setShowCreateUser(true)}>
                 <UserPlus className="w-4 h-4 mr-2" />
                 Create User
@@ -250,23 +336,23 @@ const EnhancedAdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+               <CardTitle className="text-sm font-medium">External Transfers</CardTitle>
+               <Building2 className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalUsers}</div>
-              <p className="text-xs text-muted-foreground">Active accounts</p>
+               <div className="text-2xl font-bold text-warning">{pendingExternalTransfers.length}</div>
+               <p className="text-xs text-muted-foreground">Pending approval</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+               <CardTitle className="text-sm font-medium">Wire Transfers</CardTitle>
+               <Send className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(totalBalance)}</div>
-              <p className="text-xs text-muted-foreground">All accounts combined</p>
+               <div className="text-2xl font-bold text-warning">{pendingWireTransfers.length}</div>
+               <p className="text-xs text-muted-foreground">Pending approval</p>
             </CardContent>
           </Card>
 
@@ -283,32 +369,86 @@ const EnhancedAdminDashboard = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Loans</CardTitle>
-              <TrendingUp className="h-4 w-4 text-warning" />
+               <CardTitle className="text-sm font-medium">Check Deposits</CardTitle>
+               <FileCheck className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-warning">{pendingLoans.length}</div>
-              <p className="text-xs text-muted-foreground">Awaiting review</p>
+               <div className="text-2xl font-bold text-warning">{pendingCheckDeposits.length}</div>
+               <p className="text-xs text-muted-foreground">Pending review</p>
             </CardContent>
           </Card>
         </div>
 
+         {/* Secondary Stats Row */}
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+           <Card>
+             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+               <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+               <Users className="h-4 w-4 text-muted-foreground" />
+             </CardHeader>
+             <CardContent>
+               <div className="text-xl font-bold">{totalUsers}</div>
+             </CardContent>
+           </Card>
+           <Card>
+             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+               <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
+               <DollarSign className="h-4 w-4 text-muted-foreground" />
+             </CardHeader>
+             <CardContent>
+               <div className="text-xl font-bold">{formatCurrency(totalBalance)}</div>
+             </CardContent>
+           </Card>
+           <Card>
+             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+               <CardTitle className="text-sm font-medium">Pending Loans</CardTitle>
+               <TrendingUp className="h-4 w-4 text-warning" />
+             </CardHeader>
+             <CardContent>
+               <div className="text-xl font-bold text-warning">{pendingLoans.length}</div>
+             </CardContent>
+           </Card>
+           <Card>
+             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+               <CardTitle className="text-sm font-medium">Total Cards</CardTitle>
+               <CreditCard className="h-4 w-4 text-muted-foreground" />
+             </CardHeader>
+             <CardContent>
+               <div className="text-xl font-bold">{cards.length}</div>
+             </CardContent>
+           </Card>
+           <Card>
+             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+               <CardTitle className="text-sm font-medium">Beneficiaries</CardTitle>
+               <UserCheck className="h-4 w-4 text-warning" />
+             </CardHeader>
+             <CardContent>
+               <div className="text-xl font-bold text-warning">{pendingBeneficiaries.length}</div>
+             </CardContent>
+           </Card>
+         </div>
+
         {/* Alert for pending items */}
-        {(pendingTransactions.length > 0 || pendingLoans.length > 0) && (
+         {(pendingTransactions.length > 0 || pendingLoans.length > 0 || pendingExternalTransfers.length > 0 || pendingWireTransfers.length > 0 || pendingCheckDeposits.length > 0) && (
           <Alert className="mb-6">
             <Clock className="h-4 w-4" />
             <AlertDescription>
-              You have {pendingTransactions.length} pending transactions and {pendingLoans.length} pending loan requests that require your attention.
+               You have {pendingTransactions.length} transactions, {pendingLoans.length} loans, {pendingExternalTransfers.length} external transfers, {pendingWireTransfers.length} wire transfers, and {pendingCheckDeposits.length} check deposits pending review.
             </AlertDescription>
           </Alert>
         )}
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="users" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+             <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10">
               <TabsTrigger value="users">Users</TabsTrigger>
-              <TabsTrigger value="pending-transactions">Pending Transactions</TabsTrigger>
-              <TabsTrigger value="pending-loans">Pending Loans</TabsTrigger>
+               <TabsTrigger value="pending-transactions">Transactions</TabsTrigger>
+               <TabsTrigger value="pending-loans">Loans</TabsTrigger>
+               <TabsTrigger value="external-transfers">External</TabsTrigger>
+               <TabsTrigger value="wire-transfers">Wires</TabsTrigger>
+               <TabsTrigger value="check-deposits">Checks</TabsTrigger>
+               <TabsTrigger value="cards">Cards</TabsTrigger>
+               <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
               <TabsTrigger value="accounts">User Accounts</TabsTrigger>
               <TabsTrigger value="all-transactions">All Transactions</TabsTrigger>
             </TabsList>
@@ -486,6 +626,266 @@ const EnhancedAdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+           <TabsContent value="external-transfers">
+             <Card>
+               <CardHeader>
+                 <CardTitle>External Transfers</CardTitle>
+                 <CardDescription>Transfers to external banks pending approval</CardDescription>
+               </CardHeader>
+               <CardContent>
+                 {pendingExternalTransfers.length > 0 ? (
+                   <div className="space-y-4">
+                     {pendingExternalTransfers.map((transfer) => (
+                       <div key={transfer.id} className="p-4 border rounded-lg">
+                         <div className="flex items-center justify-between mb-4">
+                           <div>
+                             <p className="font-medium">To: {transfer.recipient_name}</p>
+                             <p className="text-sm text-muted-foreground">
+                               Bank: {transfer.bank_name} | Account: {transfer.recipient_account_number}
+                             </p>
+                             <p className="text-sm text-muted-foreground">
+                               From: {transfer.user_name} ({transfer.user_email})
+                             </p>
+                             <p className="text-xs text-muted-foreground">
+                               {formatDate(transfer.created_at)} {transfer.memo && `| Memo: ${transfer.memo}`}
+                             </p>
+                           </div>
+                           <div className="text-right">
+                             <p className="text-lg font-bold">{formatCurrency(transfer.amount)}</p>
+                             <Badge variant="secondary">Pending</Badge>
+                           </div>
+                         </div>
+                         <div className="flex space-x-2">
+                           <Button size="sm" onClick={() => handleProcessExternalTransfer(transfer.id, 'approved')}>
+                             <Check className="w-4 h-4 mr-2" />Approve
+                           </Button>
+                           <Button size="sm" variant="destructive" onClick={() => handleProcessExternalTransfer(transfer.id, 'rejected')}>
+                             <X className="w-4 h-4 mr-2" />Reject
+                           </Button>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div className="text-center py-8">
+                     <p className="text-muted-foreground">No pending external transfers</p>
+                   </div>
+                 )}
+               </CardContent>
+             </Card>
+           </TabsContent>
+
+           <TabsContent value="wire-transfers">
+             <Card>
+               <CardHeader>
+                 <CardTitle>Wire Transfers</CardTitle>
+                 <CardDescription>Domestic and international wire transfers</CardDescription>
+               </CardHeader>
+               <CardContent>
+                 {pendingWireTransfers.length > 0 ? (
+                   <div className="space-y-4">
+                     {pendingWireTransfers.map((wire) => (
+                       <div key={wire.id} className="p-4 border rounded-lg">
+                         <div className="flex items-center justify-between mb-4">
+                           <div>
+                             <p className="font-medium">To: {wire.recipient_name}</p>
+                             <p className="text-sm text-muted-foreground">
+                               Bank: {wire.recipient_bank} | Type: {wire.wire_type.toUpperCase()}
+                             </p>
+                             <p className="text-sm text-muted-foreground">
+                               From: {wire.user_name} ({wire.user_email})
+                             </p>
+                             <p className="text-xs text-muted-foreground">
+                               {formatDate(wire.created_at)} {wire.purpose && `| Purpose: ${wire.purpose}`}
+                             </p>
+                           </div>
+                           <div className="text-right">
+                             <p className="text-lg font-bold">{formatCurrency(wire.amount)}</p>
+                             <p className="text-xs text-muted-foreground">Fee: {formatCurrency(wire.fee_amount)}</p>
+                             <Badge variant="secondary">Pending</Badge>
+                           </div>
+                         </div>
+                         <div className="flex space-x-2">
+                           <Button size="sm" onClick={() => handleProcessWireTransfer(wire.id, 'approved')}>
+                             <Check className="w-4 h-4 mr-2" />Approve
+                           </Button>
+                           <Button size="sm" variant="destructive" onClick={() => handleProcessWireTransfer(wire.id, 'rejected')}>
+                             <X className="w-4 h-4 mr-2" />Reject
+                           </Button>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div className="text-center py-8">
+                     <p className="text-muted-foreground">No pending wire transfers</p>
+                   </div>
+                 )}
+               </CardContent>
+             </Card>
+           </TabsContent>
+
+           <TabsContent value="check-deposits">
+             <Card>
+               <CardHeader>
+                 <CardTitle>Check Deposits</CardTitle>
+                 <CardDescription>Mobile check deposits requiring verification</CardDescription>
+               </CardHeader>
+               <CardContent>
+                 {pendingCheckDeposits.length > 0 ? (
+                   <div className="space-y-4">
+                     {pendingCheckDeposits.map((deposit) => (
+                       <div key={deposit.id} className="p-4 border rounded-lg">
+                         <div className="flex items-center justify-between mb-4">
+                           <div>
+                             <p className="font-medium">Check #{deposit.check_number}</p>
+                             <p className="text-sm text-muted-foreground">
+                               From: {deposit.payer_name}
+                             </p>
+                             <p className="text-sm text-muted-foreground">
+                               User: {deposit.user_name} ({deposit.user_email})
+                             </p>
+                             <p className="text-xs text-muted-foreground">
+                               {formatDate(deposit.created_at)} | Hold: {deposit.hold_days} days
+                             </p>
+                           </div>
+                           <div className="text-right">
+                             <p className="text-lg font-bold">{formatCurrency(deposit.check_amount)}</p>
+                             <Badge variant="secondary">Pending</Badge>
+                           </div>
+                         </div>
+                         <div className="flex space-x-2">
+                           <Button size="sm" onClick={() => handleProcessCheckDeposit(deposit.id, 'approved')}>
+                             <Check className="w-4 h-4 mr-2" />Approve
+                           </Button>
+                           <Button size="sm" variant="outline" onClick={() => handleProcessCheckDeposit(deposit.id, 'cleared')}>
+                             <CheckCircle className="w-4 h-4 mr-2" />Clear Now
+                           </Button>
+                           <Button size="sm" variant="destructive" onClick={() => handleProcessCheckDeposit(deposit.id, 'rejected')}>
+                             <X className="w-4 h-4 mr-2" />Reject
+                           </Button>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div className="text-center py-8">
+                     <p className="text-muted-foreground">No pending check deposits</p>
+                   </div>
+                 )}
+               </CardContent>
+             </Card>
+           </TabsContent>
+
+           <TabsContent value="cards">
+             <Card>
+               <CardHeader>
+                 <CardTitle>Card Management</CardTitle>
+                 <CardDescription>View and manage all user cards</CardDescription>
+               </CardHeader>
+               <CardContent>
+                 {cards.length > 0 ? (
+                   <div className="space-y-4">
+                     {cards.map((card) => (
+                       <div key={card.id} className="p-4 border rounded-lg">
+                         <div className="flex items-center justify-between">
+                           <div>
+                             <p className="font-medium">
+                               {card.card_type.toUpperCase()} •••• {card.card_number.slice(-4)}
+                             </p>
+                             <p className="text-sm text-muted-foreground">
+                               {card.user_name} ({card.user_email})
+                             </p>
+                             <p className="text-xs text-muted-foreground">
+                               Expires: {card.expiry_date} | Limit: {formatCurrency(card.daily_limit)}
+                             </p>
+                           </div>
+                           <div className="flex items-center space-x-2">
+                             <Badge variant={
+                               card.card_status === 'active' ? 'default' :
+                               card.card_status === 'frozen' ? 'secondary' : 'destructive'
+                             }>
+                               {card.card_status}
+                             </Badge>
+                             <Select value={card.card_status} onValueChange={(value) => handleUpdateCardStatus(card.id, value)}>
+                               <SelectTrigger className="w-32">
+                                 <SelectValue />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 <SelectItem value="active">Active</SelectItem>
+                                 <SelectItem value="frozen">Frozen</SelectItem>
+                                 <SelectItem value="deactivated">Deactivated</SelectItem>
+                               </SelectContent>
+                             </Select>
+                           </div>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div className="text-center py-8">
+                     <p className="text-muted-foreground">No cards found</p>
+                   </div>
+                 )}
+               </CardContent>
+             </Card>
+           </TabsContent>
+
+           <TabsContent value="beneficiaries">
+             <Card>
+               <CardHeader>
+                 <CardTitle>Beneficiary Verification</CardTitle>
+                 <CardDescription>Verify saved payment recipients</CardDescription>
+               </CardHeader>
+               <CardContent>
+                 {beneficiaries.length > 0 ? (
+                   <div className="space-y-4">
+                     {beneficiaries.map((beneficiary) => (
+                       <div key={beneficiary.id} className="p-4 border rounded-lg">
+                         <div className="flex items-center justify-between">
+                           <div>
+                             <p className="font-medium">{beneficiary.nickname}</p>
+                             <p className="text-sm text-muted-foreground">
+                               Account: {beneficiary.account_number} | Bank: {beneficiary.bank_name || 'Internal'}
+                             </p>
+                             <p className="text-sm text-muted-foreground">
+                               Added by: {beneficiary.user_name} ({beneficiary.user_email})
+                             </p>
+                             <p className="text-xs text-muted-foreground">
+                               Type: {beneficiary.beneficiary_type} | {formatDate(beneficiary.created_at)}
+                             </p>
+                           </div>
+                           <div className="flex items-center space-x-2">
+                             <Badge variant={
+                               beneficiary.status === 'active' ? 'default' :
+                               beneficiary.status === 'pending' ? 'secondary' : 'destructive'
+                             }>
+                               {beneficiary.is_verified ? '✓ Verified' : beneficiary.status}
+                             </Badge>
+                             {beneficiary.status === 'pending' && (
+                               <div className="flex space-x-2">
+                                 <Button size="sm" onClick={() => handleVerifyBeneficiary(beneficiary.id, 'active')}>
+                                   <Check className="w-4 h-4 mr-2" />Verify
+                                 </Button>
+                                 <Button size="sm" variant="destructive" onClick={() => handleVerifyBeneficiary(beneficiary.id, 'suspended')}>
+                                   <X className="w-4 h-4 mr-2" />Suspend
+                                 </Button>
+                               </div>
+                             )}
+                           </div>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div className="text-center py-8">
+                     <p className="text-muted-foreground">No beneficiaries found</p>
+                   </div>
+                 )}
+               </CardContent>
+             </Card>
+           </TabsContent>
 
           <TabsContent value="accounts">
             <Card>
