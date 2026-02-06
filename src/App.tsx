@@ -27,6 +27,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
 
 const queryClient = new QueryClient();
 
@@ -114,6 +115,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
         <SpeedInsights />
+        <Analytics />
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
