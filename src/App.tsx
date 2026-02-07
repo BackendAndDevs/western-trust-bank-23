@@ -26,6 +26,10 @@ import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
+import Portfolio from "./pages/Portfolio";
+import CurrencyExchangePage from "./pages/CurrencyExchange";
+import Support from "./pages/Support";
+import LiveChatWidget from "./components/LiveChatWidget";
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -110,9 +114,25 @@ const App = () => (
                 <Services />
               </ProtectedRoute>
             } />
+            <Route path="/portfolio" element={
+              <ProtectedRoute>
+                <Portfolio />
+              </ProtectedRoute>
+            } />
+            <Route path="/currency-exchange" element={
+              <ProtectedRoute>
+                <CurrencyExchangePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/support" element={
+              <ProtectedRoute>
+                <Support />
+              </ProtectedRoute>
+            } />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <LiveChatWidget />
         </BrowserRouter>
         <SpeedInsights />
         <Analytics />

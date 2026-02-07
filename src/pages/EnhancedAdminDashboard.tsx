@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAdminData, AdminUser } from '@/hooks/useAdminData';
- import { useEnhancedAdminData } from '@/hooks/useEnhancedAdminData';
+import { useEnhancedAdminData } from '@/hooks/useEnhancedAdminData';
+import { useAdminSupport, AdminMessage } from '@/hooks/useAdminSupport';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +36,9 @@ import {
    Send,
    FileCheck,
    UserCheck,
-   RefreshCw
+   RefreshCw,
+   MessageSquare,
+   Headphones
 } from 'lucide-react';
 import Logo from "@/components/Logo";
 import { Link } from "react-router-dom";
@@ -80,6 +83,20 @@ const EnhancedAdminDashboard = () => {
      refetchData: refetchEnhancedData
    } = useEnhancedAdminData();
 
+  const {
+    tickets: adminTickets,
+    chatSessions: adminChatSessions,
+    pendingTickets,
+    activeChatSessions,
+    getTicketMessages: adminGetTicketMessages,
+    getChatMessages: adminGetChatMessages,
+    sendTicketReply,
+    sendChatReply,
+    updateTicketStatus,
+    loading: supportLoading,
+    refetch: refetchSupport,
+  } = useAdminSupport();
+
   const { toast } = useToast();
 
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -98,7 +115,13 @@ const EnhancedAdminDashboard = () => {
     role: 'user'
   });
   const [showCreateUser, setShowCreateUser] = useState(false);
-
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [ticketMsgs, setTicketMsgs] = useState<AdminMessage[]>([]);
+  const [ticketReply, setTicketReply] = useState("");
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [chatMsgs, setChatMsgs] = useState<AdminMessage[]>([]);
+  const [chatReply, setChatReply] = useState("");
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const handleLogout = async () => {
     await signOut();
     toast({
@@ -277,8 +300,53 @@ const EnhancedAdminDashboard = () => {
    };
 
    const handleRefreshAll = async () => {
-     await Promise.all([refetchData(), refetchEnhancedData()]);
+     await Promise.all([refetchData(), refetchEnhancedData(), refetchSupport()]);
      toast({ title: "Refreshed", description: "All data has been refreshed." });
+   };
+
+   const handleViewTicket = async (ticketId: string) => {
+     setSelectedTicketId(ticketId);
+     const msgs = await adminGetTicketMessages(ticketId);
+     setTicketMsgs(msgs);
+   };
+
+   const handleSendTicketReply = async () => {
+     if (!selectedTicketId || !ticketReply) return;
+     const result = await sendTicketReply(selectedTicketId, ticketReply);
+     if (result.error) {
+       toast({ title: "Error", description: "Failed to send reply.", variant: "destructive" });
+     } else {
+       setTicketReply("");
+       const msgs = await adminGetTicketMessages(selectedTicketId);
+       setTicketMsgs(msgs);
+     }
+   };
+
+   const handleViewChat = async (sessionId: string) => {
+     setSelectedChatId(sessionId);
+     const msgs = await adminGetChatMessages(sessionId);
+     setChatMsgs(msgs);
+   };
+
+   const handleSendChatReply = async () => {
+     if (!selectedChatId || !chatReply) return;
+     const result = await sendChatReply(selectedChatId, chatReply);
+     if (result.error) {
+       toast({ title: "Error", description: "Failed to send message.", variant: "destructive" });
+     } else {
+       setChatReply("");
+       const msgs = await adminGetChatMessages(selectedChatId);
+       setChatMsgs(msgs);
+     }
+   };
+
+   const handleUpdateTicketStatus = async (ticketId: string, status: string) => {
+     const result = await updateTicketStatus(ticketId, status);
+     if (result.error) {
+       toast({ title: "Error", description: "Failed to update ticket.", variant: "destructive" });
+     } else {
+       toast({ title: "Success", description: `Ticket ${status}.` });
+     }
    };
 
    if (loading || enhancedLoading) {
@@ -440,7 +508,7 @@ const EnhancedAdminDashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="users" className="space-y-6">
-             <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10">
+             <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12">
               <TabsTrigger value="users">Users</TabsTrigger>
                <TabsTrigger value="pending-transactions">Transactions</TabsTrigger>
                <TabsTrigger value="pending-loans">Loans</TabsTrigger>
@@ -450,7 +518,9 @@ const EnhancedAdminDashboard = () => {
                <TabsTrigger value="cards">Cards</TabsTrigger>
                <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
               <TabsTrigger value="accounts">User Accounts</TabsTrigger>
-              <TabsTrigger value="all-transactions">All Transactions</TabsTrigger>
+              <TabsTrigger value="all-transactions">All Txns</TabsTrigger>
+              <TabsTrigger value="support-tickets">Tickets</TabsTrigger>
+              <TabsTrigger value="live-chats">Chats</TabsTrigger>
             </TabsList>
 
           <TabsContent value="users">
@@ -965,6 +1035,96 @@ const EnhancedAdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Support Tickets Tab */}
+          <TabsContent value="support-tickets">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Headphones className="w-5 h-5" /> Support Tickets ({pendingTickets.length} pending)</CardTitle>
+                <CardDescription>Manage customer support tickets</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {adminTickets.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-6">No tickets yet.</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Subject</TableHead>
+                        <TableHead>User</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Priority</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Messages</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {adminTickets.map(t => (
+                        <TableRow key={t.id}>
+                          <TableCell className="font-medium">{t.subject}</TableCell>
+                          <TableCell>{t.user_name || t.user_email}</TableCell>
+                          <TableCell><Badge variant="outline">{t.category}</Badge></TableCell>
+                          <TableCell><Badge variant={t.priority === 'urgent' ? 'destructive' : t.priority === 'high' ? 'default' : 'outline'}>{t.priority}</Badge></TableCell>
+                          <TableCell><Badge variant="outline">{t.status}</Badge></TableCell>
+                          <TableCell>{t.message_count}</TableCell>
+                          <TableCell className="text-sm">{new Date(t.created_at).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="outline" onClick={() => handleViewTicket(t.id)}>
+                              <MessageSquare className="w-3 h-3 mr-1" />Reply
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Live Chats Tab */}
+          <TabsContent value="live-chats">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><MessageSquare className="w-5 h-5" /> Live Chat Sessions ({activeChatSessions.length} active)</CardTitle>
+                <CardDescription>Respond to live customer chats</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {adminChatSessions.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-6">No chat sessions yet.</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Messages</TableHead>
+                        <TableHead>Started</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {adminChatSessions.map(s => (
+                        <TableRow key={s.id}>
+                          <TableCell className="font-medium">{s.user_name || s.user_email}</TableCell>
+                          <TableCell><Badge variant={s.status === 'active' ? 'default' : 'outline'}>{s.status}</Badge></TableCell>
+                          <TableCell>{s.message_count}</TableCell>
+                          <TableCell className="text-sm">{new Date(s.created_at).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="outline" onClick={() => handleViewChat(s.id)}>
+                              <MessageSquare className="w-3 h-3 mr-1" />Open
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
 
         {/* Edit Balance Dialog */}
@@ -1085,6 +1245,72 @@ const EnhancedAdminDashboard = () => {
                 Create User
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Ticket View Dialog */}
+        <Dialog open={!!selectedTicketId} onOpenChange={(open) => { if (!open) setSelectedTicketId(null); }}>
+          <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle>Ticket: {adminTickets.find(t => t.id === selectedTicketId)?.subject}</DialogTitle>
+            </DialogHeader>
+            <div className="text-sm text-muted-foreground mb-2">
+              From: {adminTickets.find(t => t.id === selectedTicketId)?.user_name || adminTickets.find(t => t.id === selectedTicketId)?.user_email}
+            </div>
+            <div className="flex gap-2 mb-2">
+              <Select onValueChange={(v) => selectedTicketId && handleUpdateTicketStatus(selectedTicketId, v)}>
+                <SelectTrigger className="w-40"><SelectValue placeholder="Update status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="in_progress">In Progress</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-2 py-2 min-h-0">
+              {ticketMsgs.map(m => (
+                <div key={m.id} className={`flex ${m.sender_type === 'admin' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] p-3 rounded-lg ${m.sender_type === 'admin' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                    <p className="text-sm font-medium">{m.sender_name}</p>
+                    <p className="text-sm">{m.message}</p>
+                    <p className={`text-xs mt-1 ${m.sender_type === 'admin' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                      {new Date(m.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2 pt-2 border-t">
+              <Input value={ticketReply} onChange={e => setTicketReply(e.target.value)} placeholder="Type admin reply..." onKeyDown={e => e.key === 'Enter' && handleSendTicketReply()} />
+              <Button onClick={handleSendTicketReply} disabled={!ticketReply}><Send className="w-4 h-4" /></Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Chat View Dialog */}
+        <Dialog open={!!selectedChatId} onOpenChange={(open) => { if (!open) setSelectedChatId(null); }}>
+          <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle>Chat with {adminChatSessions.find(s => s.id === selectedChatId)?.user_name || adminChatSessions.find(s => s.id === selectedChatId)?.user_email}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto space-y-2 py-2 min-h-0">
+              {chatMsgs.map(m => (
+                <div key={m.id} className={`flex ${m.sender_type === 'admin' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] p-2 rounded-lg text-sm ${m.sender_type === 'admin' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                    {m.message}
+                    <div className={`text-xs mt-0.5 ${m.sender_type === 'admin' ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
+                      {m.sender_name} • {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div ref={chatEndRef} />
+            </div>
+            <div className="flex gap-2 pt-2 border-t">
+              <Input value={chatReply} onChange={e => setChatReply(e.target.value)} placeholder="Type admin message..." onKeyDown={e => e.key === 'Enter' && handleSendChatReply()} />
+              <Button onClick={handleSendChatReply} disabled={!chatReply}><Send className="w-4 h-4" /></Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
