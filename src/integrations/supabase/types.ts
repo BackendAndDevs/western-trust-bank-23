@@ -148,6 +148,45 @@ export type Database = {
         }
         Relationships: []
       }
+      assets: {
+        Row: {
+          asset_type: string
+          created_at: string
+          currency: string
+          current_price: number
+          id: string
+          is_active: boolean
+          name: string
+          previous_price: number
+          symbol: string
+          updated_at: string
+        }
+        Insert: {
+          asset_type?: string
+          created_at?: string
+          currency?: string
+          current_price?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          previous_price?: number
+          symbol: string
+          updated_at?: string
+        }
+        Update: {
+          asset_type?: string
+          created_at?: string
+          currency?: string
+          current_price?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          previous_price?: number
+          symbol?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       beneficiaries: {
         Row: {
           account_number: string
@@ -290,6 +329,65 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+          sender_type: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          sender_id: string
+          sender_type?: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          sender_id?: string
+          sender_type?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_sessions: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       check_deposits: {
         Row: {
           account_id: string
@@ -357,6 +455,86 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      currency_exchanges: {
+        Row: {
+          account_id: string
+          created_at: string
+          exchange_rate: number
+          fee_amount: number
+          from_amount: number
+          from_currency: string
+          id: string
+          status: string
+          to_amount: number
+          to_currency: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          exchange_rate: number
+          fee_amount?: number
+          from_amount: number
+          from_currency: string
+          id?: string
+          status?: string
+          to_amount: number
+          to_currency: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          exchange_rate?: number
+          fee_amount?: number
+          from_amount?: number
+          from_currency?: string
+          id?: string
+          status?: string
+          to_amount?: number
+          to_currency?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "currency_exchanges_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exchange_rates: {
+        Row: {
+          from_currency: string
+          id: string
+          is_active: boolean
+          rate: number
+          spread: number
+          to_currency: string
+          updated_at: string
+        }
+        Insert: {
+          from_currency: string
+          id?: string
+          is_active?: boolean
+          rate: number
+          spread?: number
+          to_currency: string
+          updated_at?: string
+        }
+        Update: {
+          from_currency?: string
+          id?: string
+          is_active?: boolean
+          rate?: number
+          spread?: number
+          to_currency?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       external_transfers: {
         Row: {
@@ -495,6 +673,101 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      portfolio_holdings: {
+        Row: {
+          asset_id: string
+          average_buy_price: number
+          created_at: string
+          id: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asset_id: string
+          average_buy_price?: number
+          created_at?: string
+          id?: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asset_id?: string
+          average_buy_price?: number
+          created_at?: string
+          id?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_holdings_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_transactions: {
+        Row: {
+          account_id: string
+          asset_id: string
+          created_at: string
+          fee_amount: number
+          id: string
+          price_per_unit: number
+          quantity: number
+          status: string
+          total_amount: number
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          asset_id: string
+          created_at?: string
+          fee_amount?: number
+          id?: string
+          price_per_unit: number
+          quantity: number
+          status?: string
+          total_amount: number
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          asset_id?: string
+          created_at?: string
+          fee_amount?: number
+          id?: string
+          price_per_unit?: number
+          quantity?: number
+          status?: string
+          total_amount?: number
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portfolio_transactions_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -635,6 +908,77 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          created_at: string
+          id: string
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ticket_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+          sender_type: string
+          ticket_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          sender_id: string
+          sender_type?: string
+          ticket_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          sender_id?: string
+          sender_type?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -903,6 +1247,19 @@ export type Database = {
           user_name: string
         }[]
       }
+      admin_get_all_chat_sessions: {
+        Args: never
+        Returns: {
+          closed_at: string
+          created_at: string
+          id: string
+          message_count: number
+          status: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       admin_get_all_check_deposits: {
         Args: never
         Returns: {
@@ -977,6 +1334,22 @@ export type Database = {
           user_name: string
         }[]
       }
+      admin_get_all_tickets: {
+        Args: never
+        Returns: {
+          category: string
+          created_at: string
+          id: string
+          message_count: number
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       admin_get_all_transactions: {
         Args: never
         Returns: {
@@ -1026,7 +1399,29 @@ export type Database = {
           wire_type: string
         }[]
       }
+      admin_get_chat_messages: {
+        Args: { p_session_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+          sender_name: string
+          sender_type: string
+        }[]
+      }
       admin_get_dashboard_stats: { Args: never; Returns: Json }
+      admin_get_ticket_messages: {
+        Args: { p_ticket_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+          sender_name: string
+          sender_type: string
+        }[]
+      }
       admin_process_check_deposit: {
         Args: { admin_notes?: string; deposit_id: string; new_status: string }
         Returns: Json
@@ -1051,6 +1446,14 @@ export type Database = {
         Args: { admin_notes?: string; loan_id: string; new_status: string }
         Returns: Json
       }
+      admin_send_chat_message: {
+        Args: { p_message: string; p_session_id: string }
+        Returns: Json
+      }
+      admin_send_ticket_message: {
+        Args: { p_message: string; p_ticket_id: string }
+        Returns: Json
+      }
       admin_update_account_balance: {
         Args: {
           admin_notes?: string
@@ -1059,15 +1462,40 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_update_asset_price: {
+        Args: { p_asset_id: string; p_new_price: number }
+        Returns: Json
+      }
       admin_update_card_status: {
         Args: { card_id: string; new_status: string }
+        Returns: Json
+      }
+      admin_update_exchange_rate: {
+        Args: { p_new_rate: number; p_rate_id: string }
+        Returns: Json
+      }
+      admin_update_ticket_status: {
+        Args: { p_status: string; p_ticket_id: string }
         Returns: Json
       }
       admin_verify_beneficiary: {
         Args: { beneficiary_id: string; new_status: string }
         Returns: Json
       }
+      buy_asset: {
+        Args: { p_account_id: string; p_asset_id: string; p_quantity: number }
+        Returns: Json
+      }
       calculate_interest: { Args: { p_account_id: string }; Returns: Json }
+      exchange_currency: {
+        Args: {
+          p_account_id: string
+          p_from_amount: number
+          p_from_currency: string
+          p_to_currency: string
+        }
+        Returns: Json
+      }
       generate_account_number: { Args: never; Returns: string }
       get_notifications: {
         Args: { p_limit?: number }
@@ -1101,6 +1529,10 @@ export type Database = {
           p_recipient_account_number: string
           p_recipient_name: string
         }
+        Returns: Json
+      }
+      sell_asset: {
+        Args: { p_account_id: string; p_asset_id: string; p_quantity: number }
         Returns: Json
       }
       setup_recurring_transfer: {

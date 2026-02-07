@@ -15,7 +15,11 @@ import {
   User,
   Bell,
   Calendar,
-  Download
+  Download,
+  BarChart3,
+  RefreshCw,
+  MessageSquare,
+  Headphones
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -98,6 +102,24 @@ const Navigation = () => {
       icon: Bell,
       description: "View alerts",
       badge: unreadCount
+    },
+    { 
+      label: "Portfolio", 
+      path: "/portfolio", 
+      icon: BarChart3,
+      description: "Investments"
+    },
+    { 
+      label: "Exchange", 
+      path: "/currency-exchange", 
+      icon: RefreshCw,
+      description: "Currency exchange"
+    },
+    { 
+      label: "Support", 
+      path: "/support", 
+      icon: Headphones,
+      description: "Get help"
     },
     { 
       label: "Profile", 
