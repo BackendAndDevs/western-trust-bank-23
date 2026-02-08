@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Lock, CreditCard, TrendingUp, Users, Award, ArrowRight, Menu, X } from "lucide-react";
+import { Shield, Lock, CreditCard, TrendingUp, Users, Award, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
-import Logo from "@/components/Logo";
+import AppHeader from "@/components/AppHeader";
 
 // Import futuristic icons
 import depositIcon from "@/assets/icons/deposit-icon.png";
@@ -16,76 +15,9 @@ import withdrawIcon from "@/assets/icons/withdraw-icon.png";
 import analyticsIcon from "@/assets/icons/analytics-icon.png";
 
 const Home = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      {/* Header - Optimized for mobile */}
-      <header className="border-b bg-card/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
-          <Link to="/" className="shrink-0">
-            <Logo size="sm" />
-          </Link>
-          
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center space-x-6">
-            {['About', 'Services', 'FAQ', 'Contact'].map((item) => (
-              <Link
-                key={item}
-                to={`/${item.toLowerCase()}`}
-                className="text-muted-foreground hover:text-primary transition-colors font-medium text-sm"
-              >
-                {item}
-              </Link>
-            ))}
-          </nav>
-          
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-              <Link to="/auth">Sign In</Link>
-            </Button>
-            <Button asChild size="sm" className="text-xs sm:text-sm px-3 sm:px-4">
-              <Link to="/auth">Get Started</Link>
-            </Button>
-            
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Nav Dropdown */}
-        {mobileMenuOpen && (
-          <nav className="lg:hidden border-t bg-card/95 backdrop-blur-md animate-fade-in">
-            <div className="px-4 py-3 space-y-1">
-              {['About', 'Services', 'FAQ', 'Contact'].map((item) => (
-                <Link
-                  key={item}
-                  to={`/${item.toLowerCase()}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2.5 px-3 rounded-lg text-muted-foreground hover:text-primary hover:bg-muted/50 transition-colors font-medium"
-                >
-                  {item}
-                </Link>
-              ))}
-              <div className="pt-2 border-t mt-2">
-                <Link
-                  to="/auth"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2.5 px-3 rounded-lg text-primary font-semibold"
-                >
-                  Sign In
-                </Link>
-              </div>
-            </div>
-          </nav>
-        )}
-      </header>
+      <AppHeader />
 
       {/* Hero Section */}
       <Hero />

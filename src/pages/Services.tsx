@@ -24,7 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import Navigation from "@/components/Navigation";
+import PageLayout from "@/components/PageLayout";
 
 interface ServiceRequest {
   id: string;
@@ -253,25 +253,7 @@ const Services = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <Link to="/dashboard" className="flex items-center space-x-2 text-muted-foreground hover:text-primary">
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base">Back to Dashboard</span>
-              </Link>
-            </div>
-            <h1 className="text-base sm:text-lg font-semibold">Service Requests</h1>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Navigation />
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <PageLayout>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
           {/* Request New Service */}
@@ -538,7 +520,7 @@ const Services = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

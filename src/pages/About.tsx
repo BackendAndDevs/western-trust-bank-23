@@ -2,28 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Award, Users, TrendingUp, Target, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import Logo from "@/components/Logo";
+import AppHeader from "@/components/AppHeader";
 
 const About = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="shrink-0">
-            <Logo size="sm" />
-          </Link>
-          
-          <div className="flex space-x-4">
-            <Button asChild variant="outline" className="transition-all duration-300 hover:shadow-elegant">
-              <Link to="/auth">Sign In</Link>
-            </Button>
-            <Button asChild className="transition-all duration-300 hover:shadow-elegant">
-              <Link to="/auth">Get Started</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AppHeader />
 
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-banking-green-light to-accent">

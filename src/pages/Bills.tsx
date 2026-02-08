@@ -23,7 +23,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useBills } from "@/hooks/useBills";
-import Navigation from "@/components/Navigation";
+import PageLayout from "@/components/PageLayout";
 import { format } from "date-fns";
 
 const Bills = () => {
@@ -116,25 +116,7 @@ const Bills = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <Link to="/dashboard" className="flex items-center space-x-2 text-muted-foreground hover:text-primary">
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base">Back to Dashboard</span>
-              </Link>
-            </div>
-            <h1 className="text-base sm:text-lg font-semibold">Bill Management</h1>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Navigation />
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <PageLayout>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Account Balance & Add Bill */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -353,7 +335,7 @@ const Bills = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

@@ -4,12 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, ArrowLeft, PiggyBank } from "lucide-react";
+import { TrendingUp, PiggyBank } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import Logo from "@/components/Logo";
+import PageLayout from "@/components/PageLayout";
 
 const Deposit = () => {
   const { user } = useAuth();
@@ -81,22 +81,7 @@ const Deposit = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-            <Logo size="sm" />
-          </div>
-        </div>
-      </header>
-
+    <PageLayout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="space-y-6">
           {/* Account Overview */}
@@ -180,7 +165,7 @@ const Deposit = () => {
           </Card>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

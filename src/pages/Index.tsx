@@ -1,5 +1,5 @@
 
-import Header from "@/components/Header";
+import AppHeader from "@/components/AppHeader";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
 import TrustIndicators from "@/components/TrustIndicators";
@@ -8,8 +8,8 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
+    <div className="min-h-screen bg-background">
+      <AppHeader />
       <Hero />
       <Services />
       <TrustIndicators />

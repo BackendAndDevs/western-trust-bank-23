@@ -5,9 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import Logo from "@/components/Logo";
+import AppHeader from "@/components/AppHeader";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -30,23 +29,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="shrink-0">
-            <Logo size="sm" />
-          </Link>
-          
-          <div className="flex space-x-4">
-            <Button asChild variant="outline" className="transition-all duration-300 hover:shadow-elegant">
-              <Link to="/auth">Sign In</Link>
-            </Button>
-            <Button asChild className="transition-all duration-300 hover:shadow-elegant">
-              <Link to="/auth">Get Started</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AppHeader />
 
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-banking-green-light to-accent">

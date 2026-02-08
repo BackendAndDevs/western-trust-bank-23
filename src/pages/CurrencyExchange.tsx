@@ -6,14 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeftRight, DollarSign, LogOut, RefreshCw } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeftRight, DollarSign, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCurrencyExchange } from "@/hooks/useCurrencyExchange";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
-import Navigation from "@/components/Navigation";
-import Logo from "@/components/Logo";
+import PageLayout from "@/components/PageLayout";
 
 const CurrencyExchange = () => {
   const { user, signOut } = useAuth();
@@ -46,21 +45,7 @@ const CurrencyExchange = () => {
   const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent">
-      <header className="bg-card shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <Link to="/" className="shrink-0"><Logo size="sm" /></Link>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Navigation />
-              <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate("/"); }} className="hidden sm:flex">
-                <LogOut className="w-4 h-4 mr-2" />Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <PageLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Exchange Form */}
@@ -177,7 +162,7 @@ const CurrencyExchange = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

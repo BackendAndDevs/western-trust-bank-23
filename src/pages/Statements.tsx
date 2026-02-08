@@ -3,11 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Download, FileText, Calendar, Filter } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Download, FileText, Calendar, Filter } from "lucide-react";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
-import Navigation from "@/components/Navigation";
+import PageLayout from "@/components/PageLayout";
 
 const Statements = () => {
   const { primaryAccount, transactions } = useBankingData();
@@ -64,28 +63,7 @@ const Statements = () => {
     : [months[parseInt(selectedMonth)]];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Link to="/dashboard">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Dashboard
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-xl font-bold">Account Statements</h1>
-                <p className="text-sm text-muted-foreground">Download your monthly statements</p>
-              </div>
-            </div>
-            <Navigation />
-          </div>
-        </div>
-      </header>
-
+    <PageLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
         <Card className="mb-6 glass">
@@ -192,7 +170,7 @@ const Statements = () => {
           })}
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

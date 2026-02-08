@@ -4,11 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CreditCard, Send, ArrowLeft, Users } from "lucide-react";
+import { CreditCard, Send, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import PageLayout from "@/components/PageLayout";
 
 const Transfer = () => {
   const { user } = useAuth();
@@ -91,27 +92,7 @@ const Transfer = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Western Trust Bank</h1>
-              <p className="text-sm text-muted-foreground">Transfer Funds</p>
-            </div>
-          </div>
-        </div>
-      </header>
+    <PageLayout>
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="space-y-6">
@@ -242,7 +223,7 @@ const Transfer = () => {
           </Card>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
