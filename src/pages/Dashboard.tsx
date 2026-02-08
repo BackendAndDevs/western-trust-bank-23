@@ -31,8 +31,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
 import { useInterest } from "@/hooks/useInterest";
-import Navigation from "@/components/Navigation";
-import Logo from "@/components/Logo";
+import AppHeader from "@/components/AppHeader";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -236,29 +235,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <Link to="/" className="shrink-0">
-                <Logo size="sm" />
-              </Link>
-            </div>
-            
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Navigation />
-              <span className="text-xs sm:text-sm text-muted-foreground hidden md:block max-w-32 sm:max-w-none truncate">
-                Welcome, {user?.user_metadata?.full_name || user?.email}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleLogout} className="hidden sm:flex">
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Account Overview */}

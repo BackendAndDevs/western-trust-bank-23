@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import PageLayout from "@/components/PageLayout";
 import { useAdminData, AdminUser } from '@/hooks/useAdminData';
 import { useEnhancedAdminData } from '@/hooks/useEnhancedAdminData';
 import { useAdminSupport, AdminMessage } from '@/hooks/useAdminSupport';
@@ -365,39 +366,22 @@ const EnhancedAdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <Logo size="sm" />
-              <Badge variant="outline" className="border-destructive text-destructive">Admin</Badge>
-            </div>
-            <div className="flex items-center space-x-4">
-               <Link to="/dashboard">
-                 <Button variant="ghost" size="sm">User Dashboard</Button>
-               </Link>
-               <Button variant="outline" size="sm" onClick={handleRefreshAll}>
-                 <RefreshCw className="w-4 h-4 mr-2" />
-                 Refresh
-               </Button>
-              <Button onClick={() => setShowCreateUser(true)}>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Create User
-              </Button>
-              <Badge variant="outline" className="border-primary text-primary">
-                <Shield className="w-4 h-4 mr-2" />
-                Administrator
-              </Badge>
-              <Button variant="outline" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
+    <PageLayout>
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between mb-6">
+          <Badge variant="outline" className="border-destructive text-destructive">Admin Panel</Badge>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleRefreshAll}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+            <Button size="sm" onClick={() => setShowCreateUser(true)}>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Create User
+            </Button>
           </div>
         </div>
-      </header>
+      </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Overview Cards */}
@@ -1314,7 +1298,7 @@ const EnhancedAdminDashboard = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

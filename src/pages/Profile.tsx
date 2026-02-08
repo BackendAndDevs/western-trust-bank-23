@@ -6,13 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, ArrowLeft, Settings, Bell, Shield, Eye, Camera, Upload } from "lucide-react";
+import { User, Settings, Bell, Shield, Eye, Camera, Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBankingData } from "@/hooks/useBankingData";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import Logo from "@/components/Logo";
+import PageLayout from "@/components/PageLayout";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -108,22 +108,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-            <Logo size="sm" />
-          </div>
-        </div>
-      </header>
-
+    <PageLayout>
       <div className="container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
         <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 text-xs sm:text-sm">
@@ -402,7 +387,7 @@ const Profile = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

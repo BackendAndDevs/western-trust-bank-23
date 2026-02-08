@@ -4,15 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { 
   CreditCard, 
-  ArrowLeft,
   Lock,
   Unlock,
   Ban,
   Check
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useCards } from "@/hooks/useCards";
-import Navigation from "@/components/Navigation";
+import PageLayout from "@/components/PageLayout";
 
 const Cards = () => {
   const { cards, loading, updateCardStatus } = useCards();
@@ -43,25 +41,7 @@ const Cards = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <Link to="/dashboard" className="flex items-center space-x-2 text-muted-foreground hover:text-primary">
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base">Back to Dashboard</span>
-              </Link>
-            </div>
-            <h1 className="text-base sm:text-lg font-semibold">Card Management</h1>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Navigation />
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <PageLayout>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <Card>
           <CardHeader>
@@ -160,7 +140,7 @@ const Cards = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

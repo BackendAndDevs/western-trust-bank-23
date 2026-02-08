@@ -109,11 +109,7 @@ const App = () => (
                 <Cards />
               </ProtectedRoute>
             } />
-            <Route path="/services" element={
-              <ProtectedRoute>
-                <Services />
-              </ProtectedRoute>
-            } />
+            <Route path="/services" element={<Services />} />
             <Route path="/portfolio" element={
               <ProtectedRoute>
                 <Portfolio />

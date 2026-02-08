@@ -8,14 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { TrendingUp, TrendingDown, DollarSign, BarChart3, ArrowUpRight, ArrowDownLeft, LogOut } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, BarChart3, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { useBankingData } from "@/hooks/useBankingData";
 import { useToast } from "@/hooks/use-toast";
-import Navigation from "@/components/Navigation";
-import Logo from "@/components/Logo";
+import PageLayout from "@/components/PageLayout";
 
 const Portfolio = () => {
   const { user, signOut } = useAuth();
@@ -57,21 +56,7 @@ const Portfolio = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-banking-green-light to-accent">
-      <header className="bg-card shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <Link to="/" className="shrink-0"><Logo size="sm" /></Link>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Navigation />
-              <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate("/"); }} className="hidden sm:flex">
-                <LogOut className="w-4 h-4 mr-2" />Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <PageLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Portfolio Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -280,44 +265,44 @@ const Portfolio = () => {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
 
-      {/* Trade Dialog */}
-      <Dialog open={tradeDialog.open} onOpenChange={(open) => { setTradeDialog({ ...tradeDialog, open }); setQuantity(""); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{tradeDialog.type === 'buy' ? 'Buy' : 'Sell'} {tradeDialog.symbol}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Current Price</Label>
-              <p className="text-lg font-bold">{formatCurrency(tradeDialog.price)}</p>
-            </div>
-            <div>
-              <Label>Quantity</Label>
-              <Input type="number" min="0.01" step="0.01" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="Enter quantity" />
-              {tradeDialog.maxQty && <p className="text-xs text-muted-foreground mt-1">Max: {tradeDialog.maxQty}</p>}
-            </div>
-            {quantity && parseFloat(quantity) > 0 && (
-              <div className="p-3 rounded-lg bg-muted">
-                <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(tradeDialog.price * parseFloat(quantity))}</span></div>
-                <div className="flex justify-between text-sm text-muted-foreground"><span>Fee (0.1%)</span><span>{formatCurrency(tradeDialog.price * parseFloat(quantity) * 0.001)}</span></div>
-                <div className="flex justify-between font-bold border-t mt-2 pt-2">
-                  <span>Total</span>
-                  <span>{formatCurrency(tradeDialog.price * parseFloat(quantity) * (tradeDialog.type === 'buy' ? 1.001 : 0.999))}</span>
-                </div>
+        {/* Trade Dialog */}
+        <Dialog open={tradeDialog.open} onOpenChange={(open) => { setTradeDialog({ ...tradeDialog, open }); setQuantity(""); }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{tradeDialog.type === 'buy' ? 'Buy' : 'Sell'} {tradeDialog.symbol}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Current Price</Label>
+                <p className="text-lg font-bold">{formatCurrency(tradeDialog.price)}</p>
               </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setTradeDialog({ ...tradeDialog, open: false })}>Cancel</Button>
-            <Button onClick={handleTrade} disabled={!quantity || parseFloat(quantity) <= 0}>
-              {tradeDialog.type === 'buy' ? 'Buy' : 'Sell'} {tradeDialog.symbol}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+              <div>
+                <Label>Quantity</Label>
+                <Input type="number" min="0.01" step="0.01" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="Enter quantity" />
+                {tradeDialog.maxQty && <p className="text-xs text-muted-foreground mt-1">Max: {tradeDialog.maxQty}</p>}
+              </div>
+              {quantity && parseFloat(quantity) > 0 && (
+                <div className="p-3 rounded-lg bg-muted">
+                  <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(tradeDialog.price * parseFloat(quantity))}</span></div>
+                  <div className="flex justify-between text-sm text-muted-foreground"><span>Fee (0.1%)</span><span>{formatCurrency(tradeDialog.price * parseFloat(quantity) * 0.001)}</span></div>
+                  <div className="flex justify-between font-bold border-t mt-2 pt-2">
+                    <span>Total</span>
+                    <span>{formatCurrency(tradeDialog.price * parseFloat(quantity) * (tradeDialog.type === 'buy' ? 1.001 : 0.999))}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setTradeDialog({ ...tradeDialog, open: false })}>Cancel</Button>
+              <Button onClick={handleTrade} disabled={!quantity || parseFloat(quantity) <= 0}>
+                {tradeDialog.type === 'buy' ? 'Buy' : 'Sell'} {tradeDialog.symbol}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </PageLayout>
   );
 };
 
