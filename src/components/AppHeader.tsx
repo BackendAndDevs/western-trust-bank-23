@@ -164,6 +164,7 @@ const navGroups = {
   ],
   manage: [
     { label: "Cards", path: "/cards", icon: CreditCard },
+    { label: "Payment Methods", path: "/payment-methods", icon: Wallet },
     { label: "Bills", path: "/bills", icon: FileText },
     { label: "Statements", path: "/statements", icon: Download },
   ],
