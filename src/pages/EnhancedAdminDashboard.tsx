@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import PageLayout from "@/components/PageLayout";
+import AdminCustomization from "@/components/AdminCustomization";
 import { useAdminData, AdminUser } from '@/hooks/useAdminData';
 import { useEnhancedAdminData } from '@/hooks/useEnhancedAdminData';
 import { useAdminSupport, AdminMessage } from '@/hooks/useAdminSupport';
@@ -492,7 +493,7 @@ const EnhancedAdminDashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="users" className="space-y-6">
-             <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12">
+             <TabsList className="flex flex-wrap w-full gap-1">
               <TabsTrigger value="users">Users</TabsTrigger>
                <TabsTrigger value="pending-transactions">Transactions</TabsTrigger>
                <TabsTrigger value="pending-loans">Loans</TabsTrigger>
@@ -501,10 +502,11 @@ const EnhancedAdminDashboard = () => {
                <TabsTrigger value="check-deposits">Checks</TabsTrigger>
                <TabsTrigger value="cards">Cards</TabsTrigger>
                <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
-              <TabsTrigger value="accounts">User Accounts</TabsTrigger>
+              <TabsTrigger value="accounts">Accounts</TabsTrigger>
               <TabsTrigger value="all-transactions">All Txns</TabsTrigger>
               <TabsTrigger value="support-tickets">Tickets</TabsTrigger>
               <TabsTrigger value="live-chats">Chats</TabsTrigger>
+              <TabsTrigger value="customization">Customize</TabsTrigger>
             </TabsList>
 
           <TabsContent value="users">
@@ -1108,6 +1110,11 @@ const EnhancedAdminDashboard = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Customization Tab */}
+          <TabsContent value="customization">
+            <AdminCustomization />
           </TabsContent>
         </Tabs>
 

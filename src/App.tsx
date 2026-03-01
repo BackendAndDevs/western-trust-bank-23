@@ -20,6 +20,7 @@ import Transfer from "./pages/Transfer";
 import Profile from "./pages/Profile";
 import Bills from "./pages/Bills";
 import Cards from "./pages/Cards";
+import PaymentMethods from "./pages/PaymentMethods";
 import Services from "./pages/Services";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
@@ -32,10 +33,13 @@ import Support from "./pages/Support";
 import LiveChatWidget from "./components/LiveChatWidget";
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
+import { useSiteSettings } from './hooks/useSiteSettings';
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useSiteSettings(); // Apply site-wide settings on load
+  return (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
@@ -109,6 +113,11 @@ const App = () => (
                 <Cards />
               </ProtectedRoute>
             } />
+            <Route path="/payment-methods" element={
+              <ProtectedRoute>
+                <PaymentMethods />
+              </ProtectedRoute>
+            } />
             <Route path="/services" element={<Services />} />
             <Route path="/portfolio" element={
               <ProtectedRoute>
@@ -135,6 +144,7 @@ const App = () => (
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
