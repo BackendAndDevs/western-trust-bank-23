@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "next-themes";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import Notifications from "@/pages/Notifications";
@@ -38,9 +39,10 @@ import { useSiteSettings } from './hooks/useSiteSettings';
 const queryClient = new QueryClient();
 
 const App = () => {
-  useSiteSettings(); // Apply site-wide settings on load
+  useSiteSettings();
   return (
   <QueryClientProvider client={queryClient}>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
@@ -143,6 +145,7 @@ const App = () => {
         <Analytics />
       </TooltipProvider>
     </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
   );
 };
