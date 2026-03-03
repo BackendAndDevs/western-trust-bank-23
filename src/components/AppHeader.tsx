@@ -40,6 +40,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
 
 const AppHeader = () => {
   const { user, signOut } = useAuth();
@@ -93,6 +94,7 @@ const GuestHeader = ({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMo
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
             <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               <Link to="/auth">Sign In</Link>
             </Button>
@@ -248,6 +250,8 @@ const AuthenticatedHeader = ({ user, onLogout, mobileOpen, setMobileOpen, locati
 
           {/* Right side */}
           <div className="flex items-center gap-2">
+            <ThemeToggle />
+
             {/* Notification bell */}
             <Link to="/notifications" className="relative p-2 rounded-lg hover:bg-muted/50 transition-colors hidden sm:flex">
               <Bell className="w-5 h-5 text-muted-foreground" />
