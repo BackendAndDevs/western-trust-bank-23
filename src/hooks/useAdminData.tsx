@@ -258,11 +258,29 @@ export const useAdminData = () => {
 
       if (error) throw error;
 
-      // Refresh data after deletion
       await fetchAllData();
       return { error: null };
     } catch (error) {
       console.error('Error deleting user:', error);
+      return { error };
+    }
+  };
+
+  const updateAccountStatus = async (userId: string, newStatus: string) => {
+    if (!user) return { error: 'User not authenticated' };
+
+    try {
+      const { error } = await supabase.rpc('admin_update_account_status' as any, {
+        target_user_id: userId,
+        new_status: newStatus,
+      });
+
+      if (error) throw error;
+
+      await fetchAllData();
+      return { error: null };
+    } catch (error) {
+      console.error('Error updating account status:', error);
       return { error };
     }
   };
@@ -288,6 +306,7 @@ export const useAdminData = () => {
     updateAccountBalance,
     createUser,
     deleteUser,
+    updateAccountStatus,
     refetchData: fetchAllData
   };
 };
