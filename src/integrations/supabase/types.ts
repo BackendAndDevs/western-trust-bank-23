@@ -1531,6 +1531,14 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_update_account_status: {
+        Args: {
+          admin_notes?: string
+          new_status: string
+          target_user_id: string
+        }
+        Returns: Json
+      }
       admin_update_asset_price: {
         Args: { p_asset_id: string; p_new_price: number }
         Returns: Json
